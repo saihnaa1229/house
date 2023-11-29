@@ -10,6 +10,7 @@ import 'package:sizer/sizer.dart';
 import 'package:path/path.dart' as path;
 import 'package:test_fire/services/home_service.dart';
 import 'package:test_fire/util/employee.dart';
+import 'package:test_fire/util/user.dart';
 import '../../util/constants.dart';
 import '../../util/utils.dart';
 import '../../widgets/custom_text_button.dart';
@@ -24,6 +25,7 @@ class CreateEmployee extends StatefulWidget {
 
 class _CreateEmployeeState extends State<CreateEmployee> {
   HomeServices homeServices = HomeServices();
+  String? role;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _rePasswordController = TextEditingController();

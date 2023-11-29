@@ -18,4 +18,14 @@ class UserPreferences {
   static Future clearUser() async {
     await _preferences.remove('userId');
   }
+
+  // Add this function to store the user's role
+  static Future setUserRole(String userRole) async {
+    await _preferences.setString('userRole', userRole);
+  }
+
+  // Add this function to retrieve the user's role
+  static String? getUserRole() {
+    return _preferences.getString('userRole');
+  }
 }

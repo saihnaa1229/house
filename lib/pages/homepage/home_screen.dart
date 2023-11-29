@@ -7,18 +7,22 @@ import 'package:test_fire/model/employee1.dart';
 import 'package:test_fire/pages/booking_screen.dart';
 import 'package:test_fire/pages/employee/create_employee_screen.dart';
 import 'package:test_fire/pages/homepage/all_services.dart';
-import 'package:test_fire/pages/profile_screen.dart';
+import 'package:test_fire/pages/user_profile_screen.dart';
 import 'package:test_fire/services/employee_services.dart';
 import 'package:test_fire/services/home_service.dart';
 import 'package:test_fire/util/constants.dart';
+import 'package:test_fire/util/user.dart';
 import 'package:test_fire/widgets/banner.dart';
 import 'package:test_fire/widgets/employee_card.dart';
 import 'package:test_fire/widgets/employee_container.dart';
 import 'package:test_fire/widgets/services_item_card.dart';
 import 'package:test_fire/widgets/services_item_container.dart';
 
+import '../../util/utils.dart';
 import '../../widgets/bottom_navigation.dart';
 import '../../widgets/bottom_navigation_item.dart';
+import '../admin_profile_scree.dart';
+import '../employee_profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,9 +38,10 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ServiceItemCard> _servicesItems = HomeServices.getServiceItems();
   Future<List<EmployeeCard>>? _employees;
   List<String> _categories = HomeServices.getServicesList();
-
+  String? userRole;
   Future<void> loadData() async {
     _employees = homeServices.getAllEmployees();
+    userRole = UserPreferences.getUserRole();
   }
 
   @override
@@ -145,9 +150,29 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(Icons.account_circle_outlined),
               iconSize: 22.sp,
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ProfileScreen()));
-                ;
+                switch (userRole) {
+                  case 'admin':
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AdminProfileScreen()),
+                    );
+                    break;
+                  case 'employee':
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => EmployeeProfileScreen()),
+                    );
+                    break;
+                  case 'user':
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UserProfileScreen()),
+                    );
+                    break;
+                }
               },
             )
           ],

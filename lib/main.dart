@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sizer/sizer.dart';
@@ -13,8 +15,11 @@ import 'package:test_fire/pages/auth/sign_up_screen.dart';
 import 'package:test_fire/pages/splashScreen.dart';
 import 'package:test_fire/util/constants.dart';
 import 'package:test_fire/util/employee.dart';
+import 'pages/admin_profile_scree.dart';
 import 'pages/employee/employee_screen.dart';
 import 'pages/employee/employee_work_images.dart';
+import 'pages/employee_profile_screen.dart';
+import 'pages/user_profile_screen.dart';
 import 'util/user.dart';
 import 'util/utils.dart';
 import 'pages//auth/log_in_screen.dart';
@@ -45,6 +50,9 @@ class MyApp extends StatelessWidget {
             'GetEmployeeInformation': (context) => GetEmployeeInformation(),
             'AboutEmployee': (context) => AboutEmployee(),
             'AddWorkImages': (context) => AddWorkImages(),
+            'UserProfileScreen': (context) => UserProfileScreen(),
+            'EmployeeProfileScreen': (context) => EmployeeProfileScreen(),
+            'AdminProfileScreen': (context) => AdminProfileScreen(),
             // 'EmployeeScreen': (context) => EmployeeScreen(),
             // Define other routes as needed
           },

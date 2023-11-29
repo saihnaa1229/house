@@ -3,18 +3,23 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sizer/sizer.dart';
+import 'package:test_fire/pages/homepage/home_screen.dart';
 import 'package:test_fire/services/home_service.dart';
 import 'package:test_fire/widgets/app_bar.dart';
 import 'package:test_fire/widgets/custom_app_bar.dart';
 import 'package:test_fire/widgets/custom_text_button.dart';
 
 import '../util/constants.dart';
+import '../util/user.dart';
 import '../widgets/booking_item_card.dart';
 import '../widgets/booking_item_card_container.dart';
 import '../widgets/bottom_navigation.dart';
 import '../widgets/bottom_navigation_item.dart';
 import '../widgets/services_item_card.dart';
 import '../widgets/services_item_container.dart';
+import 'admin_profile_scree.dart';
+import 'employee_profile_screen.dart';
+import 'user_profile_screen.dart';
 
 class BookingScreen extends StatefulWidget {
   BookingScreen({super.key});
@@ -27,7 +32,7 @@ class _BookingScreenState extends State<BookingScreen> {
   int _selectedChipIndex = 1;
   List<BookingItemCard>? _bookingItemCards;
   int bottomBarIndex = 1;
-
+  String? userRole;
   @override
   void initState() {
     loadData();
@@ -35,6 +40,7 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   Future<void> loadData() async {
+    userRole = UserPreferences.getUserRole();
     HomeServices homeServices = HomeServices();
     _bookingItemCards = homeServices.getBookingDetails(_selectedChipIndex);
     _bookingItemCards = (bottomBarIndex == 1)
@@ -67,13 +73,10 @@ class _BookingScreenState extends State<BookingScreen> {
                     : BookingItemCardContainer(
                         bookingItem: _bookingItemCards!,
                       )
-
-          
               ],
             ),
           ),
         ),
-
         bottomNavigationBar: BottomNavigation(
           activeColor: kPrimaryColor,
           index: bottomBarIndex,
@@ -82,7 +85,10 @@ class _BookingScreenState extends State<BookingScreen> {
                 iconText: 'Нүүр',
                 icon: Icon(Icons.storefront),
                 iconSize: 22.sp,
-                onPressed: () {}),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()));
+                }),
             BottomNavigationItem(
               iconText: 'Захиалга',
               icon: Icon(Icons.manage_search_rounded),
@@ -106,7 +112,29 @@ class _BookingScreenState extends State<BookingScreen> {
               icon: Icon(Icons.account_circle_outlined),
               iconSize: 22.sp,
               onPressed: () {
-                print("5");
+                switch (userRole) {
+                  case 'admin':
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AdminProfileScreen()),
+                    );
+                    break;
+                  case 'employee':
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => EmployeeProfileScreen()),
+                    );
+                    break;
+                  case 'user':
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UserProfileScreen()),
+                    );
+                    break;
+                }
               },
             )
           ],

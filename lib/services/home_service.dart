@@ -9,6 +9,7 @@ import 'package:test_fire/model/booking.dart';
 import 'package:test_fire/model/employee.dart';
 import 'package:test_fire/model/employee1.dart';
 import 'package:test_fire/widgets/employee_card.dart';
+import '../model/admin.dart';
 import '../model/services.dart';
 import '../model/user.dart';
 import '../util/constants.dart';
@@ -216,13 +217,11 @@ class HomeServices {
       for (var employeeDoc in categoryGroups[category]!) {
         var data = employeeDoc.data();
         if (data is Map<String, dynamic>) {
-          // Data is verified to be a non-nullable Map<String, dynamic>, safe to call set()
           await categoryRef
               .collection('employees')
               .doc(employeeDoc.id)
               .set(data);
         } else {
-          // Handle the case where data is not a map, or is null
           print('Document ${employeeDoc.id} has invalid data.');
         }
       }
@@ -253,6 +252,41 @@ class HomeServices {
       }
     }
   }
+
+  Future<Employee1> getEmployeeData(String employeeId) async {
+    DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+        .collection('employee')
+        .doc(employeeId)
+        .get();
+
+    if (docSnapshot.exists) {
+      return Employee1.fromDocumentSnapshot(docSnapshot);
+    } else {
+      throw Exception('Employee not found');
+    }
+  }
+
+  Future<UserModel> getUserData(String? userId) async {
+    DocumentSnapshot docSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+
+    if (docSnapshot.exists) {
+      return UserModel.fromDocumentSnapshot(docSnapshot);
+    } else {
+      throw Exception('User not found');
+    }
+  }
+
+  Future<Admin> getAdminData(String? userId) async {
+    DocumentSnapshot docSnapshot =
+        await FirebaseFirestore.instance.collection('admin').doc(userId).get();
+
+    if (docSnapshot.exists) {
+      return Admin.fromDocumentSnapshot(docSnapshot);
+    } else {
+      throw Exception('User not found');
+    }
+  }
 }
 
 List<Employee1> employees = [
@@ -270,7 +304,8 @@ List<Employee1> employees = [
     category: 'Цэвэрлэгээ',
     password: '123456',
     salary: 50000,
-    url: 'https://example.com/photo-alice.jpg',
+    url:
+        'https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg',
     uploadedAt: DateTime(1995, 02, 01),
   ),
   Employee1(
@@ -287,7 +322,8 @@ List<Employee1> employees = [
     category: 'Угаалга',
     salary: 55000,
     password: '23456',
-    url: 'https://example.com/photo-bob.jpg',
+    url:
+        'https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg',
     uploadedAt: DateTime(1990, 10, 10),
   ),
   Employee1(
@@ -304,7 +340,8 @@ List<Employee1> employees = [
     salary: 65000,
     category: 'Хивс угаалга',
     password: 'Az88888',
-    url: 'https://example.com/photo-carol.jpg',
+    url:
+        'https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg',
     uploadedAt: DateTime(1980, 12, 5),
   ),
   Employee1(

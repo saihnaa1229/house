@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 CustomTextButton(
                   text: 'Нэвтрэх',
                   onPressed: () {
-                    Login(context); // Pass the context to Login method
+                    login(context); // Pass the context to Login method
                   },
                 ),
                 SizedBox(height: 4.h),
@@ -140,41 +140,81 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future Login(BuildContext context) async {
+  // Assume UserPreferences is a class that handles storing user preferences,
+// including roles. It should handle asynchronous storage/retrieval internally if needed.
+
+  Future<void> login(BuildContext context) async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      Utils.showSnackBar('Please enter both email and password.');
+      return;
+    }
+
     try {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        email: email,
+        password: password,
       );
 
       String userId = userCredential.user!.uid;
-
-      DocumentSnapshot userData = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get();
-
-      if (userData.exists) {
-        Map<String, dynamic> userInfo = userData.data() as Map<String, dynamic>;
-        // groceryModel.userId = userId;
-        UserPreferences.setUser(userId);
-        
-        print('User Info: $userInfo');
-      } else {
-        print('No user data found in Firestore');
-      }
-
-      Navigator.pushNamed(context, 'HomeScreen');
+      await checkUserRoleAndNavigate(userId, context);
     } on FirebaseAuthException catch (error) {
-      print('--------------------------------');
-
-      print(error);
-      Utils.showSnackBar(error.message); // Pass the context
+      Utils.showSnackBar(error.message);
     } catch (e) {
-      print('ssssssssssssssssssssssssss');
-      print(e);
-      Utils.showSnackBar(e.toString()); // Pass the context
+      Utils.showSnackBar('An error occurred: ${e.toString()}');
+    }
+  }
+
+  Future<void> checkUserRoleAndNavigate(
+      String userId, BuildContext context) async {
+    String? userRole;
+
+    // Check the user's role from the 'admin' collection
+    if (await checkIfDocumentExists('admin', userId)) {
+      userRole = 'admin';
+    }
+    // Check the user's role from the 'employee' collection
+    else if (await checkIfDocumentExists('employee', userId)) {
+      userRole = 'employee';
+    }
+    // Check the user's role from the 'users' collection
+    else if (await checkIfDocumentExists('users', userId)) {
+      userRole = 'user';
+    }
+
+    // Set the user role in preferences
+    if (userRole != null) {
+      await UserPreferences.setUserRole(userRole);
+      navigateToRoleBasedScreen(userRole, context);
+    } else {
+      Utils.showSnackBar('No user data found in Firestore for this user.');
+    }
+  }
+
+  Future<bool> checkIfDocumentExists(String collection, String docId) async {
+    DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+        .collection(collection)
+        .doc(docId)
+        .get();
+    return docSnapshot.exists;
+  }
+
+  void navigateToRoleBasedScreen(String userRole, BuildContext context) {
+    switch (userRole) {
+      case 'admin':
+        Navigator.pushNamed(context, 'AdminProfileScreen');
+        break;
+      case 'employee':
+        Navigator.pushNamed(context, 'EmployeeProfileScreen');
+        break;
+      case 'user':
+        Navigator.pushNamed(context, 'UserProfileScreen');
+        break;
+      default:
+        Utils.showSnackBar('Unknown user role encountered.');
     }
   }
 }
