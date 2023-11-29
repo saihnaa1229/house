@@ -1,8 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:test_fire/pages/sign_in_screen.dart';
+import 'package:test_fire/pages/auth/log_in_screen.dart';
+import 'package:test_fire/pages/auth/sign_up_screen.dart';
 import 'package:test_fire/widgets/custom_text_button.dart';
 
 import '../util/constants.dart';
@@ -44,21 +46,43 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 'assets/images/onBoarding3.png',
               ),
               Text(
-                'We provide professional service at a friendly price',
+                'Бид мэргэжлийн үйлчилгээг хямд үнээр санал болгож байна',
                 style: kSemibold18,
               ),
               CustomTextButton(
-                  text: 'Get Started',
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SignInScreen(),
-                        ));
-                  })
+                text: 'Үргэлжлүүлэх',
+                onPressed: () {
+                  _handleButtonPress();
+                },
+              )
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _handleButtonPress() {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return StreamBuilder<User?>(
+            stream: auth.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('ALDAA'));
+              } else if (snapshot.hasData) {
+                return HomeScreen();
+              } else {
+                return LoginScreen();
+              }
+            },
+          );
+        },
       ),
     );
   }

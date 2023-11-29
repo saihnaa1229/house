@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-import 'package:test_fire/pages/log_in_screen.dart';
+import 'package:test_fire/pages/auth/log_in_screen.dart';
 import 'package:test_fire/pages/onboarding_screen.dart';
 
 import '../util/constants.dart';

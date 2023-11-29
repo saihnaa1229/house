@@ -24,7 +24,7 @@ class AllServices extends StatelessWidget {
             leadIconFuncion: () {
               Navigator.of(context).pop();
             },
-            text: 'All Services',
+            text: 'Төрөл',
             suffixIcon2: FontAwesomeIcons.ellipsis,
           ),
           preferredSize: Size(100.w, 15.h),

@@ -7,7 +7,7 @@ class CustomTextField extends StatefulWidget {
   final String? label;
   final String hintText;
   final bool icon;
-  final IconData leadIcon;
+  final IconData? leadIcon;
   final TextEditingController controller;
   final bool? inputType;
   bool obScure;
@@ -50,7 +50,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(2.w),
+      padding: widget.leadIcon != null
+          ? EdgeInsets.all(2.w)
+          : EdgeInsets.fromLTRB(6.w, 2.w, 2.w, 2.w),
       decoration: BoxDecoration(
         border: Border.all(
           width: 1.sp,
@@ -63,18 +65,21 @@ class _CustomTextFieldState extends State<CustomTextField> {
       ),
       child: TextField(
         controller: widget.controller,
-        keyboardType:
-            widget.inputType != true ? TextInputType.emailAddress : null,
+        keyboardType: widget.inputType != true
+            ? TextInputType.emailAddress
+            : TextInputType.phone,
         focusNode: widget.focusNode,
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: widget.hintText,
-          prefixIcon: Icon(
-            widget.leadIcon,
-            color: widget.isFieldActive
-                ? Color.fromARGB(255, 72, 5, 255)
-                : kHintTextColor,
-          ),
+          prefixIcon: widget.leadIcon != null
+              ? Icon(
+                  widget.leadIcon,
+                  color: widget.isFieldActive
+                      ? Color.fromARGB(255, 72, 5, 255)
+                      : kHintTextColor,
+                )
+              : null,
           suffixIcon: widget.icon == true
               ? IconButton(
                   icon: widget.obScure

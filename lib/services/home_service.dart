@@ -1,25 +1,87 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:test_fire/model/booking.dart';
 import 'package:test_fire/model/employee.dart';
+import 'package:test_fire/model/employee1.dart';
 import 'package:test_fire/widgets/employee_card.dart';
-
 import '../model/services.dart';
 import '../model/user.dart';
+import '../util/constants.dart';
 import '../widgets/booking_item_card.dart';
 import '../widgets/services_item_card.dart';
+import 'package:path/path.dart' as path;
 
 class HomeServices {
-  static User getUserDetail() {
-    return User(
-        userId: 0,
-        img: 'assets/images/profile.webp',
-        address: 'address',
-        birth: 'birth',
-        email: 'email',
-        fullname: 'fullname',
-        number: 'number',
-        username: 'username');
+  Future<void> pickImageFromGallery(
+    BuildContext context,
+    String? collection,
+    String? employeeId,
+  ) async {
+    final ImagePicker _picker = ImagePicker();
+
+    // Pick an image
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      uploadImageToFirebaseStorage(
+          File(image.path), context, collection, employeeId);
+    } else {
+      // User canceled the picker
+    }
   }
+
+  Future<void> uploadImageToFirebaseStorage(
+      File image, BuildContext context, String? collection, String? id) async {
+    // Showing a loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
+
+    try {
+      Reference ref = FirebaseStorage.instance
+          .ref()
+          .child('$collection/$id/${path.basename(image.path)}');
+
+      await ref.putFile(image);
+
+      String downloadURL = await ref.getDownloadURL();
+
+      await FirebaseFirestore.instance.collection(collection!).doc(id).update({
+        'photoURL': downloadURL,
+      });
+
+      Navigator.pop(context); // Close the loading indicator
+    } catch (e) {
+      Navigator.pop(context); // Close the loading indicator
+      print(e); // Handle error
+
+      // Show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to upload image: ${e.toString()}")),
+      );
+    }
+  }
+
+  // static User getUserDetail() {
+  //   return User(
+  //       userId: 0,
+  //       img: 'assets/images/profile.webp',
+  //       address: 'address',
+  //       birth: 'birth',
+  //       email: 'email',
+  //       fullname: 'fullname',
+  //       number: 'number',
+  //       username: 'username');
+  // }
 
   static List<String> getCarouselItems() {
     List<String> temp = [];
@@ -33,19 +95,27 @@ class HomeServices {
   }
 
   static List<String> getServicesList() {
-    List<String> temp = ['All', 'Cleaning', 'Repairing', 'Painting'];
+    List<String> temp = [
+      'Цэвэрлэгээ',
+      'Засвар',
+      'Угаалга',
+      'Цахилгаан хэрэгсэл',
+      'Сантехник',
+      'Гоо сайхан',
+      'Массаж'
+    ];
     return temp;
   }
 
   static List<String> getBookingStatus() {
-    List<String> temp = ['Upcoming', 'Completed', 'Selected'];
+    List<String> temp = ['Хүлээгдэж байгаа', 'Баталгаажсан', 'Захиалсан'];
 
     return temp;
   }
 
   static List<ServiceItemCard> getServiceItems() {
     List<ServiceItemCard> temp = [];
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 4; i++) {
       temp.add(serviceListItems[i]);
     }
     return temp;
@@ -59,10 +129,22 @@ class HomeServices {
     return temp;
   }
 
-  static List<EmployeeCard> getEmployeeDetails() {
+  Future<List<EmployeeCard>> getEmployeeDetails(String docId) async {
+    QuerySnapshot querySnapshot = await firestore
+        .collection('category')
+        .doc(docId)
+        .collection('employees')
+        .get();
+
     List<EmployeeCard> temp = [];
-    for (int i = 0; i < employeeLists.length; i++) {
-      temp.add(employeeLists[i]);
+
+    for (var doc in querySnapshot.docs) {
+      var element = Employee1.fromDocumentSnapshot(doc);
+      temp.add(
+        EmployeeCard(
+          employee: element,
+        ),
+      );
     }
     return temp;
   }
@@ -77,113 +159,440 @@ class HomeServices {
     }
     return temp;
   }
+
+  Future<List<EmployeeCard>> getAllEmployees() async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    QuerySnapshot querySnapshot = await firestore.collection('employee').get();
+
+    if (querySnapshot.docs.isEmpty) {
+      print('The employee collection is empty.');
+      return [];
+    }
+
+    List<EmployeeCard> temp = [];
+    for (var doc in querySnapshot.docs) {
+      print('Processing document: ${doc.id}');
+      try {
+        var element = Employee1.fromDocumentSnapshot(doc);
+        temp.add(
+          EmployeeCard(
+            employee: element,
+          ),
+        );
+      } catch (e) {
+        print('Error processing document ${doc.id}: $e');
+      }
+    }
+
+    if (temp.isEmpty) {
+      print('No EmployeeCard objects were created.');
+      return [];
+    }
+
+    return temp;
+  }
+
+  Future<void> employeesByCategory() async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    QuerySnapshot employeeSnapshot =
+        await firestore.collection('employee').get();
+
+    Map<String, List<DocumentSnapshot>> categoryGroups = {};
+    for (var doc in employeeSnapshot.docs) {
+      String category = doc['category'];
+      categoryGroups.putIfAbsent(category, () => []).add(doc);
+    }
+
+    for (var category in categoryGroups.keys) {
+      DocumentReference categoryRef =
+          firestore.collection('category').doc(category);
+
+      DocumentSnapshot categorySnapshot = await categoryRef.get();
+      if (!categorySnapshot.exists) {
+        await categoryRef.set({'name': category});
+      }
+
+      for (var employeeDoc in categoryGroups[category]!) {
+        var data = employeeDoc.data();
+        if (data is Map<String, dynamic>) {
+          // Data is verified to be a non-nullable Map<String, dynamic>, safe to call set()
+          await categoryRef
+              .collection('employees')
+              .doc(employeeDoc.id)
+              .set(data);
+        } else {
+          // Handle the case where data is not a map, or is null
+          print('Document ${employeeDoc.id} has invalid data.');
+        }
+      }
+    }
+  }
+
+  Future<void> addEmployee() async {
+    for (var employee in employees) {
+      try {
+        // Create User Account
+        UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: employee.email,
+          password: employee.password,
+        );
+
+        String uid = userCredential.user!.uid;
+        await FirebaseFirestore.instance
+            .collection('employee')
+            .doc(uid)
+            .set(employee.toMap());
+
+        print('Employee account and data added for: ${employee.fullName}');
+      } catch (e) {
+        // Handle errors (e.g., email already in use, Firebase auth exceptions)
+        print(
+            'Error creating account or adding data for ${employee.fullName}: $e');
+      }
+    }
+  }
 }
 
+List<Employee1> employees = [
+  Employee1(
+    review: 120,
+    rating: 3.5,
+    fullName: 'Индра',
+    email: 'indra.b123@gmail.com',
+    phoneNumber: '95237654',
+    address: '10р хороолол',
+    dateOfBirth: DateTime(1995, 02, 01),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Индра',
+    category: 'Цэвэрлэгээ',
+    password: '123456',
+    salary: 50000,
+    url: 'https://example.com/photo-alice.jpg',
+    uploadedAt: DateTime(1995, 02, 01),
+  ),
+  Employee1(
+    rating: 3.9,
+    review: 105,
+    fullName: 'Золзаяа',
+    email: 'zoloozol.@gmail.com',
+    phoneNumber: '85534890',
+    address: 'Хүннү хотхон',
+    dateOfBirth: DateTime(1990, 10, 10),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Золзаяа',
+    category: 'Угаалга',
+    salary: 55000,
+    password: '23456',
+    url: 'https://example.com/photo-bob.jpg',
+    uploadedAt: DateTime(1990, 10, 10),
+  ),
+  Employee1(
+    rating: 5.0,
+    review: 200,
+    fullName: 'Баатар',
+    email: 'baatarunur.1208@gmail.com',
+    phoneNumber: '91321111',
+    address: 'Зайсан',
+    dateOfBirth: DateTime(1980, 12, 5),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Баатар',
+    salary: 65000,
+    category: 'Хивс угаалга',
+    password: 'Az88888',
+    url: 'https://example.com/photo-carol.jpg',
+    uploadedAt: DateTime(1980, 12, 5),
+  ),
+  Employee1(
+    review: 135,
+    rating: 3.3,
+    fullName: 'Азбаяр',
+    email: 'azbayr.9@gmail.com',
+    phoneNumber: '99153463',
+    address: 'Саппоро',
+    dateOfBirth: DateTime(1990, 08, 12),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: ' Азбаяр',
+    category: 'Засвар',
+    password: '945638',
+    salary: 40000,
+    url:
+        'https://www.hotelmogel.com/wp-content/uploads/2018/10/iStock-915418510.jpg',
+    uploadedAt: DateTime(1990, 08, 12),
+  ),
+  Employee1(
+    review: 125,
+    rating: 3.9,
+    fullName: 'Навчаа',
+    email: 'navchaa.navhch453@gmail.com',
+    phoneNumber: '88850990',
+    address: 'Жуков',
+    dateOfBirth: DateTime(1992, 11, 23),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Навчаа',
+    category: 'Гоо Сайхан',
+    password: 'skin12567',
+    salary: 53000,
+    url:
+        'https://i.pinimg.com/originals/70/ab/c9/70abc9170ec6c5b82d83b1b467290f53.jpg',
+    uploadedAt: DateTime(1992, 11, 23),
+  ),
+  Employee1(
+    review: 180,
+    rating: 4.1,
+    fullName: 'Болдоо',
+    email: 'bold1<>@@gmail.com',
+    phoneNumber: '90122312',
+    address: 'Чингэлтэй дүүрэг',
+    dateOfBirth: DateTime(1983, 04, 01),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Болдоо',
+    category: 'Сантехник',
+    password: 'q198457',
+    salary: 53000,
+    url:
+        'https://www.whistler-jobs.com/wp-content/uploads/2019/06/Housekeeper-Cleaner-Male.jpg',
+    uploadedAt: DateTime(1983, 04, 01),
+  ),
+  Employee1(
+    review: 174,
+    rating: 3.6,
+    fullName: 'Энхмаа',
+    email: 'maaenkh5@gmail.com',
+    phoneNumber: '98995436',
+    address: 'Хороолол',
+    dateOfBirth: DateTime(1991, 12, 27),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Энхмаа',
+    category: 'Массаж',
+    password: '123456',
+    salary: 56000,
+    url:
+        'https://moussyusa.com/wp-content/uploads/2019/01/Housekeeper-Manager-Job-Description.jpg',
+    uploadedAt: DateTime(1991, 12, 27),
+  ),
+  Employee1(
+    review: 112,
+    rating: 2.9,
+    fullName: 'Мөнх-Эрдэнэ',
+    email: 'munhuuerdne.a@gmail.com',
+    phoneNumber: '97321244',
+    address: 'Хүүхдийн 100',
+    dateOfBirth: DateTime(1996, 09, 30),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Мөнх-Эрдэнэ',
+    category: 'Массаж',
+    password: 'munku4321',
+    salary: 38000,
+    url:
+        'https://image.freepik.com/free-photo/male-housekeeper-cleaning-glass-window-home_58466-11238.jpg',
+    uploadedAt: DateTime(1996, 09, 30),
+  ),
+  Employee1(
+    review: 128,
+    rating: 3.7,
+    fullName: 'Дуламсүрэн',
+    email: 'dulmaa20@gmail.com',
+    phoneNumber: '91114567',
+    address: 'Цамбагарав',
+    dateOfBirth: DateTime(1984, 09, 24),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Дуламсүрэн',
+    category: 'Цэвэрлэгээ',
+    password: 'ц534678',
+    salary: 52000,
+    url:
+        'https://www.householdstaff.agency/uploads/9/9/9/5/9995793/head-housekeeper-jons_orig.png',
+    uploadedAt: DateTime(1984, 09, 24),
+  ),
+  Employee1(
+    review: 145,
+    rating: 4.3,
+    fullName: 'Амгаланбаатар',
+    email: 'Amgaa.amga@gmail.com',
+    phoneNumber: '96437648',
+    address: 'ТБД Андууд',
+    dateOfBirth: DateTime(2000, 11, 26),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Амгаланбаатар',
+    category: 'Сантехник',
+    password: '2188684',
+    salary: 58000,
+    url:
+        'https://1.bp.blogspot.com/_ejUhU6mxGtM/TQO7EwxRtKI/AAAAAAAAAEU/bSCAWP09cG4/s1600/Male+Housekeeper.jpg',
+    uploadedAt: DateTime(2000, 11, 26),
+  ),
+  Employee1(
+    review: 145,
+    rating: 4.6,
+    fullName: 'Нандин',
+    email: 'nandia.b0903@gmail.com',
+    phoneNumber: '95256017',
+    address: 'Яармаг',
+    dateOfBirth: DateTime(1985, 09, 03),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Нандин',
+    category: 'Гоо сайхан',
+    password: '98768',
+    salary: 57500,
+    url:
+        'https://homemaidbetter.com/wp-content/uploads/2019/04/shutterstock_526418566.jpg',
+    uploadedAt: DateTime(1985, 09, 03),
+  ),
+  Employee1(
+    review: 119,
+    rating: 3.2,
+    fullName: 'Галаа',
+    email: 'galaabn1@gmail.com',
+    phoneNumber: '85158558',
+    address: 'Нисэх',
+    dateOfBirth: DateTime(1993, 03, 18),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Галаа',
+    category: 'Цахилгаан хэрэгсэл',
+    password: '123456',
+    salary: 46000,
+    url:
+        'https://i.pinimg.com/originals/78/21/6e/78216eb659f60d3f5370663c095891e0.jpg',
+    uploadedAt: DateTime(1993, 03, 18),
+  ),
+  Employee1(
+    review: 125,
+    rating: 3.8,
+    fullName: 'Баярмаа',
+    email: 'bayrrmaa6@gmail.com',
+    phoneNumber: '90157890',
+    address: 'Бөхийн өргөө',
+    dateOfBirth: DateTime(1989, 06, 21),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Баярмаа',
+    category: 'Угаалга',
+    password: 'key4563',
+    salary: 53000,
+    url:
+        'https://www.mbfhouseholdstaffing.com/wp-content/uploads/2012/08/iStock_000009203712Small.jpg',
+    uploadedAt: DateTime(1989, 06, 21),
+  ),
+  Employee1(
+    review: 135,
+    rating: 4.4,
+    fullName: 'Мөнхжин',
+    email: 'mujinuka@gmail.com',
+    phoneNumber: '80353675',
+    address: 'Хархорин',
+    dateOfBirth: DateTime(1999, 07, 11),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Мөнхжин',
+    category: 'Засвар',
+    password: 'muuju234',
+    salary: 60000,
+    url:
+        'https://sep.yimg.com/ay/yhst-5698391348794/men-s-spun-polyester-service-shirt-31.png',
+    uploadedAt: DateTime(1999, 07, 11),
+  ),
+  Employee1(
+    review: 145,
+    rating: 5.3,
+    fullName: 'Бээри',
+    email: 'beery.be05@gmail.com',
+    phoneNumber: '99479767',
+    address: 'Их Тэнгэр',
+    dateOfBirth: DateTime(2001, 04, 19),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Бээри',
+    category: 'Гоо Сайхан',
+    password: 'azbeery1208',
+    salary: 65000,
+    url:
+        'https://sc01.alicdn.com/kf/Haf42919f90514308a3b9b1b6af1233edk/200363391/Haf42919f90514308a3b9b1b6af1233edk.jpg',
+    uploadedAt: DateTime(2001, 04, 19),
+  ),
+  Employee1(
+    review: 148,
+    rating: 5.6,
+    fullName: 'Ану-Дөл',
+    email: 'anudolmi@gmail.com',
+    phoneNumber: '98243456',
+    address: 'Содон хороолол',
+    dateOfBirth: DateTime(1885, 08, 24),
+    description:
+        'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
+    categorytext: 'Ану-Дөл',
+    category: 'Цэвэрлэгээ',
+    password: 'massa1234',
+    salary: 63000,
+    url:
+        'https://4.imimg.com/data4/VI/RP/MY-7627491/housekeeping-apron-500x500.jpeg',
+    uploadedAt: DateTime(1985, 08, 24),
+  ),
+];
 List<EmployeeCard> employeeLists = [
   EmployeeCard(
-    employee: Employee(
-        name: 'Saihnaa',
-        category: 'House Cleaning',
-        employeeId: 0,
-        img: 'assets/images/profile.webp',
-        rating: 4.8,
-        review: 841,
-        salary: 25),
-  ),
-  EmployeeCard(
-    employee: Employee(
-        name: 'Byambaa',
-        category: 'House Cleaning',
-        employeeId: 0,
-        img: 'assets/images/profile.webp',
-        rating: 4.8,
-        review: 841,
-        salary: 25),
-  ),
-  EmployeeCard(
-    employee: Employee(
-        name: 'Ariuka',
-        category: 'House Cleaning',
-        employeeId: 0,
-        img: 'assets/images/profile.webp',
-        rating: 4.8,
-        review: 841,
-        salary: 25),
-  ),
-  EmployeeCard(
-    employee: Employee(
-        name: 'Anujin',
-        category: 'House Cleaning',
-        employeeId: 0,
-        img: 'assets/images/profile.webp',
-        rating: 4.8,
-        review: 841,
-        salary: 25),
-  ),
-  EmployeeCard(
-    employee: Employee(
-        name: 'Saraa',
-        category: 'House Cleaning',
-        employeeId: 0,
-        img: 'assets/images/profile.webp',
-        rating: 4.8,
-        review: 841,
-        salary: 25),
+    employee: Employee1(
+      rating: 3.9,
+      review: 42,
+      fullName: 'Carol Williams',
+      email: 'carol.williams@example.com',
+      phoneNumber: '+12345678903',
+      address: '789 Pine Lane',
+      dateOfBirth: DateTime(1992, 3, 3),
+      description: 'Product Manager',
+      categorytext: 'Carol',
+      salary: 50000,
+      category: 'Сантехник',
+      password: '123456',
+      url: 'https://example.com/photo-carol.jpg',
+      uploadedAt: DateTime(1990, 1, 1),
+    ),
   ),
 ];
 
 List<ServiceItemCard> serviceListItems = [
   ServiceItemCard(
     serviceItem: ServiceItem(
-        color: Color(0xff7210ff), icon: Icons.favorite, name: 'Cleaning'),
+        color: Color(0xff7210ff), icon: Icons.favorite, name: 'Цэвэрлэгээ'),
   ),
   ServiceItemCard(
     serviceItem: ServiceItem(
-        color: Color(0xffEA10AC), icon: Icons.favorite, name: 'Repairing'),
+        color: Color(0xffEA10AC), icon: Icons.favorite, name: 'Засвар'),
   ),
   ServiceItemCard(
     serviceItem: ServiceItem(
-        color: Color(0xff1A96F0), icon: Icons.favorite, name: 'Painting'),
+        color: Color(0xffFFCD29), icon: Icons.favorite, name: 'Угаалга'),
   ),
   ServiceItemCard(
     serviceItem: ServiceItem(
-        color: Color(0xffFFCD29), icon: Icons.favorite, name: 'Laundry'),
+        color: Color(0xffF54336),
+        icon: Icons.favorite,
+        name: 'Цахилгаан хэрэгсэл'),
   ),
   ServiceItemCard(
     serviceItem: ServiceItem(
-        color: Color(0xffF54336), icon: Icons.favorite, name: 'Appliance'),
+        color: Color(0xff4AAF57), icon: Icons.favorite, name: 'Сантехник'),
   ),
   ServiceItemCard(
     serviceItem: ServiceItem(
-        color: Color(0xff4AAF57), icon: Icons.favorite, name: 'Plumbing'),
+        color: Color(0xff9953FF), icon: Icons.favorite, name: 'Гоо сайхан'),
   ),
   ServiceItemCard(
     serviceItem: ServiceItem(
-        color: Color(0xff00BCD3), icon: Icons.favorite, name: 'Shifting'),
-  ),
-  ServiceItemCard(
-    serviceItem: ServiceItem(
-        color: Color(0xff9953FF), icon: Icons.favorite, name: 'Beauty'),
-  ),
-  ServiceItemCard(
-    serviceItem: ServiceItem(
-        color: Color(0xff14AE5C), icon: Icons.favorite, name: 'AC Repaet'),
-  ),
-  ServiceItemCard(
-    serviceItem: ServiceItem(
-        color: Color(0xff007BE5), icon: Icons.favorite, name: 'Vehicle'),
-  ),
-  ServiceItemCard(
-    serviceItem: ServiceItem(
-        color: Color(0xffF54C40), icon: Icons.favorite, name: 'Electronics'),
-  ),
-  ServiceItemCard(
-    serviceItem: ServiceItem(
-        color: Color(0xffCC0100), icon: Icons.favorite, name: 'Massage'),
-  ),
-  ServiceItemCard(
-    serviceItem: ServiceItem(
-        color: Color(0xff9747FF), icon: Icons.favorite, name: 'Men'),
+        color: Color(0xffCC0100), icon: Icons.favorite, name: 'Массаж'),
   ),
 ];
 
@@ -191,104 +600,120 @@ List<BookingItemCard> bookingList = [
   BookingItemCard(
     bookingitems: Booking(
         employee: Employee(
-            name: 'Saihnaa',
-            category: 'House Cleaning',
-            employeeId: 0,
-            img: 'assets/images/profile.webp',
-            rating: 4.8,
-            review: 841,
-            salary: 25),
+          name: 'Анужин',
+          category: 'Цэвэрлэгээ',
+          employeeId: 0,
+          img: 'assets/images/profile.webp',
+          rating: 4.8,
+          review: 841,
+          salary: 25,
+          favorite: true,
+        ),
         bookingId: 0,
         status: 0),
   ),
   BookingItemCard(
     bookingitems: Booking(
         employee: Employee(
-            name: 'Saraa',
-            category: 'House Cleaning',
-            employeeId: 0,
-            img: 'assets/images/profile.webp',
-            rating: 4.8,
-            review: 841,
-            salary: 25),
+          name: 'Сараа',
+          category: 'Цэвэрлэгээ',
+          employeeId: 0,
+          img: 'assets/images/profile.webp',
+          rating: 4.8,
+          review: 841,
+          salary: 25,
+          favorite: false,
+        ),
         bookingId: 0,
         status: 0),
   ),
   BookingItemCard(
     bookingitems: Booking(
         employee: Employee(
-            name: 'Anujin',
-            category: 'House Cleaning',
-            employeeId: 0,
-            img: 'assets/images/profile.webp',
-            rating: 4.8,
-            review: 841,
-            salary: 25),
+          name: 'Заяа',
+          category: 'Цэвэрлэгээ',
+          employeeId: 0,
+          img: 'assets/images/profile.webp',
+          rating: 4.8,
+          review: 841,
+          salary: 25,
+          favorite: true,
+        ),
         bookingId: 0,
         status: 1),
   ),
   BookingItemCard(
     bookingitems: Booking(
         employee: Employee(
-            name: 'Byambaa',
-            category: 'House Cleaning',
-            employeeId: 0,
-            img: 'assets/images/profile.webp',
-            rating: 4.8,
-            review: 841,
-            salary: 25),
+          name: 'Бямбаа',
+          category: 'Цэвэрлэгээ',
+          employeeId: 0,
+          img: 'assets/images/profile.webp',
+          rating: 4.8,
+          review: 841,
+          salary: 25,
+          favorite: false,
+        ),
         bookingId: 0,
         status: 2),
   ),
   BookingItemCard(
     bookingitems: Booking(
         employee: Employee(
-            name: 'Ariuka',
-            category: 'House Cleaning',
-            employeeId: 0,
-            img: 'assets/images/profile.webp',
-            rating: 4.8,
-            review: 841,
-            salary: 25),
+          name: 'Ариука',
+          category: 'Цэвэрлэгээ',
+          employeeId: 0,
+          img: 'assets/images/profile.webp',
+          rating: 4.8,
+          review: 841,
+          salary: 25,
+          favorite: false,
+        ),
         bookingId: 0,
         status: 2),
   ),
   BookingItemCard(
     bookingitems: Booking(
         employee: Employee(
-            name: 'Zaya',
-            category: 'House Cleaning',
-            employeeId: 0,
-            img: 'assets/images/profile.webp',
-            rating: 4.8,
-            review: 841,
-            salary: 25),
+          name: 'Ари',
+          category: 'Цэвэрлэгээ',
+          employeeId: 0,
+          img: 'assets/images/profile.webp',
+          rating: 4.8,
+          review: 841,
+          salary: 25,
+          favorite: true,
+        ),
         bookingId: 0,
         status: 1),
   ),
   BookingItemCard(
     bookingitems: Booking(
         employee: Employee(
-            name: 'Amraa',
-            category: 'House Cleaning',
-            employeeId: 0,
-            img: 'assets/images/profile.webp',
-            rating: 4.8,
-            review: 841,
-            salary: 25),
+          name: 'Амараа',
+          category: 'Цэвэрлэгээ',
+          employeeId: 0,
+          img: 'assets/images/profile.webp',
+          rating: 4.8,
+          review: 841,
+          salary: 25,
+          favorite: true,
+        ),
         bookingId: 0,
         status: 0),
   ),
   BookingItemCard(
     bookingitems: Booking(
         employee: Employee(
-            name: 'Erdene',
-            category: 'House Cleaning',
-            employeeId: 0,
-            img: 'assets/images/profile.webp',
-            rating: 4.8,
-            review: 841,
-            salary: 25),
+          name: 'Эрдэнэ',
+          category: 'Цэвэрлэгээ',
+          employeeId: 0,
+          img: 'assets/images/profile.webp',
+          rating: 4.8,
+          review: 841,
+          salary: 25,
+          favorite: false,
+        ),
         bookingId: 0,
         status: 0),
   )

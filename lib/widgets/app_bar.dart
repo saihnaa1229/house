@@ -48,7 +48,7 @@ class _AppBarWithImageState extends State<AppBarWithImage> {
                       padding: EdgeInsets.only(right: 3.w),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: kPrimaryColor.withOpacity(0.25),
+                          color: kScaffoldColor,
                         ),
                         child: IconButton(
                           icon: Icon(

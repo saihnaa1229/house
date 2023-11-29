@@ -1,9 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import 'package:test_fire/services/home_service.dart';
 
-const kLoginText = 'Login to your account';
-const kHomeScreenHintText = "Search";
-const kSigninText = 'Create your Account';
+final FirebaseFirestore firestore = FirebaseFirestore.instance;
+final HomeServices homeServices = HomeServices();
+
+const kLoginText = 'Нэвтрэх';
+const kHomeScreenHintText = "Хайх";
+const kSigninText = 'Шинээр бүртгүүлэх';
 
 const kScaffoldColor = Color(0xffFFFFFF);
 const kIconColor = Color(0XFF181725);
@@ -31,6 +36,11 @@ final kbold18 = TextStyle(
 
 final kbold34 = TextStyle(
   fontSize: 34.sp,
+  fontWeight: FontWeight.w800,
+);
+
+final kbold24 = TextStyle(
+  fontSize: 24.sp,
   fontWeight: FontWeight.w800,
 );
 
@@ -62,16 +72,25 @@ final kSemibold14 = TextStyle(
   fontWeight: FontWeight.w600,
 );
 
-final kMedium14 = TextStyle(
+final kMediumBlue14 = TextStyle(
   fontSize: 14.sp,
   fontWeight: FontWeight.w400,
+  color: kPrimaryColor,
 );
+final kMedium14 = TextStyle(
+    fontSize: 14.sp, fontWeight: FontWeight.w400, color: Colors.black);
 
 final kMediumWhite10 = TextStyle(
     fontSize: 10.sp, fontWeight: FontWeight.w400, color: kScaffoldColor);
 final kBold14 = TextStyle(
   fontSize: 14.sp,
   fontWeight: FontWeight.w700,
+);
+
+final kCongratsStyle = TextStyle(
+  fontSize: 18.sp,
+  fontWeight: FontWeight.w500,
+  color: kPrimaryColor,
 );
 
 final kRegularBlue12 = TextStyle(
@@ -102,3 +121,12 @@ final kButtonTextStyle = TextStyle(
   fontWeight: FontWeight.w300,
   color: kScaffoldColor,
 );
+
+final kBoxShadow = [
+  BoxShadow(
+    color: Colors.blue.withOpacity(0.1), // Shadow color with some transparency
+    spreadRadius: 5, // Extend the shadow to all sides by 1 unit
+    blurRadius: 7, // Blur radius for the shadow
+    offset: const Offset(0, 3), // Position of the shadow
+  ),
+];

@@ -53,7 +53,7 @@ class _BookingScreenState extends State<BookingScreen> {
               img: 'assets/images/profile.webp',
               suffixIcon1: FontAwesomeIcons.magnifyingGlass,
               suffixIcon2: FontAwesomeIcons.ellipsis,
-              text: 'My Bookings'),
+              text: 'Миний захиалга'),
           preferredSize: Size(100.w, 15.h),
         ),
         body: Padding(
@@ -79,30 +79,30 @@ class _BookingScreenState extends State<BookingScreen> {
           index: bottomBarIndex,
           children: [
             BottomNavigationItem(
-                iconText: 'Home',
+                iconText: 'Нүүр',
                 icon: Icon(Icons.storefront),
                 iconSize: 22.sp,
                 onPressed: () {}),
             BottomNavigationItem(
-              iconText: 'Bookings',
+              iconText: 'Захиалга',
               icon: Icon(Icons.manage_search_rounded),
               iconSize: 22.sp,
               onPressed: () {},
             ),
             BottomNavigationItem(
-              iconText: 'Calendar',
+              iconText: 'Календар',
               icon: Icon(Icons.shopping_cart_outlined),
               iconSize: 22.sp,
               onPressed: () {},
             ),
             BottomNavigationItem(
-              iconText: 'inbox',
+              iconText: 'Мэдэгдэл',
               icon: Icon(Icons.favorite_border_rounded),
               iconSize: 22.sp,
               onPressed: () {},
             ),
             BottomNavigationItem(
-              iconText: 'Profile',
+              iconText: 'Профайл',
               icon: Icon(Icons.account_circle_outlined),
               iconSize: 22.sp,
               onPressed: () {

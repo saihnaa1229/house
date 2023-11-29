@@ -76,16 +76,16 @@ class BookingItemCard extends StatelessWidget {
                       ),
                       child: bookingitems.status == 0
                           ? Text(
-                              'Up Coming',
+                              'Хүлээгдэж буй',
                               style: kMediumWhite10,
                             )
                           : bookingitems.status == 1
                               ? Text(
-                                  'Completed',
+                                  'Баталгаажсан',
                                   style: kMediumWhite10,
                                 )
                               : Text(
-                                  'Canceled',
+                                  'Цуцалсан',
                                   style: kMediumWhite10,
                                 ),
                     )

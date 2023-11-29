@@ -1,12 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sizer/sizer.dart';
-import 'package:test_fire/model/user.dart';
+import 'package:test_fire/model/employee1.dart';
 import 'package:test_fire/pages/booking_screen.dart';
+import 'package:test_fire/pages/employee/create_employee_screen.dart';
 import 'package:test_fire/pages/homepage/all_services.dart';
+import 'package:test_fire/pages/profile_screen.dart';
+import 'package:test_fire/services/employee_services.dart';
 import 'package:test_fire/services/home_service.dart';
 import 'package:test_fire/util/constants.dart';
 import 'package:test_fire/widgets/banner.dart';
@@ -26,14 +28,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  var temp = HomeServices.getUserDetail();
   int bottomBarIndex = 0;
   int _selectedChipIndex = 0;
   List<String> _carouselItems = HomeServices.getCarouselItems();
   List<ServiceItemCard> _servicesItems = HomeServices.getServiceItems();
-  List<EmployeeCard> _employeeItems = HomeServices.getEmployeeDetails();
-
+  Future<List<EmployeeCard>>? _employees;
   List<String> _categories = HomeServices.getServicesList();
+
+  Future<void> loadData() async {
+    _employees = homeServices.getAllEmployees();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +59,11 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 children: [
                   SearchTextField(),
-                  CategoryText('Special offers', 'See all', () {}),
+                  CategoryText('Урамшуулал', 'Бүгдийг харах', () {}),
                   BannerSlider(
                     carouselItems: _carouselItems,
                   ),
-                  CategoryText('Services', 'See all', () {
+                  CategoryText('Үйлчилгээ', 'Бүгдийг харах', () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => AllServices()));
                   }),
@@ -68,13 +78,29 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: kTextFieldColor,
                     ),
                   ),
-                  CategoryText('Most Popular Services', 'See all', () {}),
+                  CategoryText('Эрэлттэй үйлчилгээ', 'Бүгдийг харах', () {}),
                   CategorySelect(),
                   SizedBox(
                     height: 5.w,
                   ),
-                  EmployeeContainer(
-                    employee: _employeeItems,
+                  FutureBuilder<List<EmployeeCard>>(
+                    future: _employees,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text("Error: ${snapshot.error}");
+                      } else if (snapshot.hasData) {
+                        List<EmployeeCard> _employees = snapshot.data!;
+                        return SingleChildScrollView(
+                          child: EmployeeContainer(
+                            employee: _employees,
+                          ),
+                        );
+                      } else {
+                        return Text("No products found");
+                      }
+                    },
                   ),
                 ],
               )),
@@ -84,12 +110,12 @@ class _HomeScreenState extends State<HomeScreen> {
           index: bottomBarIndex,
           children: [
             BottomNavigationItem(
-                iconText: 'Home',
+                iconText: 'Нүүр',
                 icon: Icon(Icons.storefront),
                 iconSize: 22.sp,
                 onPressed: () {}),
             BottomNavigationItem(
-              iconText: 'Bookings',
+              iconText: 'Захиалга',
               icon: Icon(Icons.manage_search_rounded),
               iconSize: 22.sp,
               onPressed: () {
@@ -98,23 +124,30 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             BottomNavigationItem(
-              iconText: 'Calendar',
+              iconText: 'Календарь',
               icon: Icon(Icons.shopping_cart_outlined),
               iconSize: 22.sp,
-              onPressed: () {},
+              onPressed: () async {
+                homeServices.addEmployee();
+              },
             ),
             BottomNavigationItem(
-              iconText: 'inbox',
+              iconText: 'Мэдэгдэл',
               icon: Icon(Icons.favorite_border_rounded),
               iconSize: 22.sp,
-              onPressed: () {},
+              onPressed: () async {
+                homeServices.employeesByCategory();
+                print('done');
+              },
             ),
             BottomNavigationItem(
-              iconText: 'Profile',
+              iconText: 'Профайл',
               icon: Icon(Icons.account_circle_outlined),
               iconSize: 22.sp,
               onPressed: () {
-                print("5");
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ProfileScreen()));
+                ;
               },
             )
           ],
@@ -222,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               ClipOval(
                 child: Image.asset(
-                  temp.img,
+                  'assets/images/profile.webp',
                 ),
               ),
               SizedBox(
@@ -233,11 +266,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Good Morning',
+                    'Бямбаа',
                     style: kHintRegular12,
                   ),
                   Text(
-                    '${temp.fullname} ${temp.username}',
+                    'Бямбацэрэн',
                     style: kSemibold16,
                   )
                 ],
@@ -254,10 +287,18 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(
                 width: 3.w,
               ),
-              Icon(
-                Icons.bookmark_border,
-                size: 7.w,
-                color: kHintTextColor,
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CreateEmployee()));
+                },
+                child: Icon(
+                  Icons.bookmark_border,
+                  size: 7.w,
+                  color: kHintTextColor,
+                ),
               ),
             ],
           )

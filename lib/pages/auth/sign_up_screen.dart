@@ -1,19 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sizer/sizer.dart';
-import 'package:test_fire/pages/log_in_screen.dart';
 import 'package:test_fire/util/constants.dart';
 import 'package:test_fire/widgets/custom_app_bar.dart';
 import 'package:test_fire/widgets/custom_text_button.dart';
 import 'package:test_fire/widgets/custom_textfield.dart';
 
-class SignInScreen extends StatelessWidget {
-  SignInScreen({super.key});
+import '/util/utils.dart';
+import 'log_in_screen.dart';
+
+class SignUpScreen extends StatelessWidget {
+  SignUpScreen({super.key});
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _rePasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +42,7 @@ class SignInScreen extends StatelessWidget {
                   height: 5.h,
                 ),
                 CustomTextField(
-                  hintText: 'Email',
+                  hintText: 'Цахим шуудан',
                   icon: false,
                   label: null,
                   controller: _emailController,
@@ -49,7 +54,7 @@ class SignInScreen extends StatelessWidget {
                   height: 3.h,
                 ),
                 CustomTextField(
-                  hintText: 'Password',
+                  hintText: 'Нууц үг',
                   icon: true,
                   label: null,
                   controller: _passwordController,
@@ -57,17 +62,27 @@ class SignInScreen extends StatelessWidget {
                   leadIcon: FontAwesomeIcons.lock,
                 ),
                 SizedBox(
+                  height: 3.h,
+                ),
+                CustomTextField(
+                  hintText: 'Нууц үг давтах',
+                  icon: true,
+                  label: null,
+                  controller: _rePasswordController,
+                  obScure: false,
+                  leadIcon: FontAwesomeIcons.lock,
+                ),
+                SizedBox(
                   height: 5.h,
                 ),
                 CustomTextButton(
-                    text: 'Sign up',
+                    text: 'Бүртгүүлэх',
                     onPressed: () {
-                      print(_emailController.text);
-                      print(_passwordController.text);
+                      signUp(context);
                     }),
                 SizedBox(height: 4.h),
                 Text(
-                  'or continue with',
+                  'Өөр холбоосоор нэвтрэх',
                   style: kRegular12,
                 ),
                 SizedBox(height: 2.h),
@@ -86,7 +101,7 @@ class SignInScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account?',
+                      'Бүртгэлтэй хаяг байгаа?',
                     ),
                     TextButton(
                       onPressed: () {
@@ -96,7 +111,7 @@ class SignInScreen extends StatelessWidget {
                                 builder: (context) => LoginScreen()));
                       },
                       child: Text(
-                        'Sign in',
+                        'Нэвтрэх',
                         style: kRegularBlue12,
                       ),
                     ),
@@ -121,5 +136,42 @@ class SignInScreen extends StatelessWidget {
         height: 3.h,
       ),
     );
+  }
+
+  Future signUp(BuildContext context) async {
+    if (_passwordController.text.trim() != _rePasswordController.text.trim()) {
+      Utils.showSnackBar("Passwords do not match");
+      return; 
+    }
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      String userId = userCredential.user!.uid;
+
+      Map<String, dynamic> userData = {
+        "email": _emailController.text.trim(),
+      };
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .set(userData);
+
+      Navigator.pushNamed(context, 'GetUserInformation');
+    } on FirebaseAuthException catch (error) {
+      print('--------------------------------');
+      print(error);
+      Utils.showSnackBar(error
+          .message);
+    } catch (e) {
+      print('ssssssssssssssssssssssssss');
+      // Handle any other errors
+      print(e);
+      Utils.showSnackBar(e.toString());
+    }
   }
 }
