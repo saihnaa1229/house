@@ -11,8 +11,16 @@ class UserPreferences {
     await _preferences.setString('userId', userId);
   }
 
+  static Future setPin(String userPin) async {
+    await _preferences.setString('userPin', userPin);
+  }
+
   static String? getUser() {
     return _preferences.getString('userId');
+  }
+
+  static Future getPin() async {
+    return _preferences.getString('userPin');
   }
 
   static Future clearUser() async {

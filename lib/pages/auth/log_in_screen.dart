@@ -140,9 +140,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Assume UserPreferences is a class that handles storing user preferences,
-// including roles. It should handle asynchronous storage/retrieval internally if needed.
-
   Future<void> login(BuildContext context) async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
@@ -160,6 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       String userId = userCredential.user!.uid;
+      UserPreferences.setUser(userId);
       await checkUserRoleAndNavigate(userId, context);
     } on FirebaseAuthException catch (error) {
       Utils.showSnackBar(error.message);

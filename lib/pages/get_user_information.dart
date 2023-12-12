@@ -208,6 +208,7 @@ class _GetUserInformationState extends State<GetUserInformation> {
       "phoneNumber": _phoneController.text.trim(),
       "dateOfBirth": _dateController.text.trim(),
       "address": _addressController.text.trim(),
+      "pin": 0000,
     };
 
     await firestore.collection('users').doc(userId).set(

@@ -5,10 +5,10 @@ import 'package:test_fire/pages/employee/get_employee_information.dart';
 import 'package:test_fire/pages/get_user_information.dart';
 import 'package:test_fire/pages/homepage/home_screen.dart';
 
-import '../pages/admin_profile_scree.dart';
+import '../pages/admin/admin_profile_scree.dart';
 import '../pages/employee/about_employee.dart';
 import '../pages/employee/employee_work_images.dart';
-import '../pages/employee_profile_screen.dart';
+import '../pages/employee/employee_profile_screen.dart';
 import '../pages/user_profile_screen.dart';
 
 enum RouteNames {

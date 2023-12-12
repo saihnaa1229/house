@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../util/constants.dart';
+import '../../util/constants.dart';
 import 'bottom_navigation_item.dart';
 
 class BottomNavigation extends StatelessWidget {

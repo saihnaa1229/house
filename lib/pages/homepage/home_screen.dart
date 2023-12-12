@@ -1,28 +1,22 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sizer/sizer.dart';
-import 'package:test_fire/model/employee1.dart';
-import 'package:test_fire/pages/booking_screen.dart';
 import 'package:test_fire/pages/employee/create_employee_screen.dart';
 import 'package:test_fire/pages/homepage/all_services.dart';
-import 'package:test_fire/pages/user_profile_screen.dart';
-import 'package:test_fire/services/employee_services.dart';
+import 'package:test_fire/pages/search_screen.dart';
 import 'package:test_fire/services/home_service.dart';
 import 'package:test_fire/util/constants.dart';
 import 'package:test_fire/util/user.dart';
 import 'package:test_fire/widgets/banner.dart';
+import 'package:test_fire/widgets/bottomNavigationBar/custom_bottom_navigation.dart';
 import 'package:test_fire/widgets/employee_card.dart';
 import 'package:test_fire/widgets/employee_container.dart';
 import 'package:test_fire/widgets/services_item_card.dart';
 import 'package:test_fire/widgets/services_item_container.dart';
 
-import '../../util/utils.dart';
-import '../../widgets/bottom_navigation.dart';
-import '../../widgets/bottom_navigation_item.dart';
-import '../admin_profile_scree.dart';
-import '../employee_profile_screen.dart';
+import '../../widgets/custom_text_button.dart';
+import '../auth/log_in_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -54,130 +48,67 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size(100.w, 14.h),
-          child: HomeAppBar(),
-        ),
-        body: SingleChildScrollView(
-          child: Container(
-              padding: EdgeInsets.fromLTRB(5.w, 2.w, 5.w, 5.w),
-              child: Column(
-                children: [
-                  SearchTextField(),
-                  CategoryText('Урамшуулал', 'Бүгдийг харах', () {}),
-                  BannerSlider(
-                    carouselItems: _carouselItems,
-                  ),
-                  CategoryText('Үйлчилгээ', 'Бүгдийг харах', () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => AllServices()));
-                  }),
-                  ServicesItemContainer(
-                    serviesItems: _servicesItems,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 5.w),
-                    child: Divider(
-                      height: 2.sp,
-                      thickness: 2.sp,
-                      color: kTextFieldColor,
+          appBar: PreferredSize(
+            preferredSize: Size(100.w, 14.h),
+            child: HomeAppBar(),
+          ),
+          body: SingleChildScrollView(
+            child: Container(
+                padding: EdgeInsets.fromLTRB(5.w, 2.w, 5.w, 5.w),
+                child: Column(
+                  children: [
+                    MySearchScreen(),
+                    CategoryText('Урамшуулал', 'Бүгдийг харах', () {}),
+                    BannerSlider(
+                      carouselItems: _carouselItems,
                     ),
-                  ),
-                  CategoryText('Эрэлттэй үйлчилгээ', 'Бүгдийг харах', () {}),
-                  CategorySelect(),
-                  SizedBox(
-                    height: 5.w,
-                  ),
-                  FutureBuilder<List<EmployeeCard>>(
-                    future: _employees,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text("Error: ${snapshot.error}");
-                      } else if (snapshot.hasData) {
-                        List<EmployeeCard> _employees = snapshot.data!;
-                        return SingleChildScrollView(
-                          child: EmployeeContainer(
-                            employee: _employees,
-                          ),
-                        );
-                      } else {
-                        return Text("No products found");
-                      }
-                    },
-                  ),
-                ],
-              )),
-        ),
-        bottomNavigationBar: BottomNavigation(
-          activeColor: kPrimaryColor,
-          index: bottomBarIndex,
-          children: [
-            BottomNavigationItem(
-                iconText: 'Нүүр',
-                icon: Icon(Icons.storefront),
-                iconSize: 22.sp,
-                onPressed: () {}),
-            BottomNavigationItem(
-              iconText: 'Захиалга',
-              icon: Icon(Icons.manage_search_rounded),
-              iconSize: 22.sp,
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => BookingScreen()));
-              },
-            ),
-            BottomNavigationItem(
-              iconText: 'Календарь',
-              icon: Icon(Icons.shopping_cart_outlined),
-              iconSize: 22.sp,
-              onPressed: () async {
-                homeServices.addEmployee();
-              },
-            ),
-            BottomNavigationItem(
-              iconText: 'Мэдэгдэл',
-              icon: Icon(Icons.favorite_border_rounded),
-              iconSize: 22.sp,
-              onPressed: () async {
-                homeServices.employeesByCategory();
-                print('done');
-              },
-            ),
-            BottomNavigationItem(
-              iconText: 'Профайл',
-              icon: Icon(Icons.account_circle_outlined),
-              iconSize: 22.sp,
-              onPressed: () {
-                switch (userRole) {
-                  case 'admin':
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AdminProfileScreen()),
-                    );
-                    break;
-                  case 'employee':
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => EmployeeProfileScreen()),
-                    );
-                    break;
-                  case 'user':
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => UserProfileScreen()),
-                    );
-                    break;
-                }
-              },
-            )
-          ],
-        ),
-      ),
+                    CategoryText('Үйлчилгээ', 'Бүгдийг харах', () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AllServices()));
+                    }),
+                    ServicesItemContainer(
+                      serviesItems: _servicesItems,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 5.w),
+                      child: Divider(
+                        height: 2.sp,
+                        thickness: 2.sp,
+                        color: kTextFieldColor,
+                      ),
+                    ),
+                    CategoryText('Эрэлттэй үйлчилгээ', 'Бүгдийг харах', () {}),
+                    CategorySelect(),
+                    SizedBox(
+                      height: 5.w,
+                    ),
+                    FutureBuilder<List<EmployeeCard>>(
+                      future: _employees,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text("Error: ${snapshot.error}");
+                        } else if (snapshot.hasData) {
+                          List<EmployeeCard> _employees = snapshot.data!;
+                          return SingleChildScrollView(
+                            child: EmployeeContainer(
+                              employee: _employees,
+                            ),
+                          );
+                        } else {
+                          return Text("No products found");
+                        }
+                      },
+                    ),
+                  ],
+                )),
+          ),
+          bottomNavigationBar:
+              BottomNavigationContainer(bottomBarIndex: bottomBarIndex)),
     );
   }
 
@@ -304,10 +235,18 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Row(
             children: [
-              Icon(
-                FontAwesomeIcons.bell,
-                size: 7.w,
-                color: kHintTextColor,
+              GestureDetector(
+                onTap: () {
+                  // Sign out the user when the button is pressed
+                  FirebaseAuth.instance.signOut();
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()));
+                },
+                child: Icon(
+                  FontAwesomeIcons.bell,
+                  size: 7.w,
+                  color: kHintTextColor,
+                ),
               ),
               SizedBox(
                 width: 3.w,

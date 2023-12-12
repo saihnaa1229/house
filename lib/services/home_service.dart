@@ -103,7 +103,8 @@ class HomeServices {
       'Цахилгаан хэрэгсэл',
       'Сантехник',
       'Гоо сайхан',
-      'Массаж'
+      'Массаж',
+      'Будах'
     ];
     return temp;
   }
@@ -143,6 +144,7 @@ class HomeServices {
       var element = Employee1.fromDocumentSnapshot(doc);
       temp.add(
         EmployeeCard(
+          employeeId: doc.id,
           employee: element,
         ),
       );
@@ -177,6 +179,7 @@ class HomeServices {
         var element = Employee1.fromDocumentSnapshot(doc);
         temp.add(
           EmployeeCard(
+            employeeId: doc.id,
             employee: element,
           ),
         );
@@ -244,9 +247,13 @@ class HomeServices {
             .doc(uid)
             .set(employee.toMap());
 
+        await FirebaseFirestore.instance
+            .collection('employee')
+            .doc(uid)
+            .set({'id': uid}, SetOptions(merge: true));
+
         print('Employee account and data added for: ${employee.fullName}');
       } catch (e) {
-        // Handle errors (e.g., email already in use, Firebase auth exceptions)
         print(
             'Error creating account or adding data for ${employee.fullName}: $e');
       }
@@ -294,13 +301,13 @@ List<Employee1> employees = [
     review: 120,
     rating: 3.5,
     fullName: 'Индра',
-    email: 'indra.b123@gmail.com',
+    email: 'indrab123@gmail.com',
     phoneNumber: '95237654',
     address: '10р хороолол',
     dateOfBirth: DateTime(1995, 02, 01),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Индра',
+    categorytext: 'Өрөө цэвэрлэгээ',
     category: 'Цэвэрлэгээ',
     password: '123456',
     salary: 50000,
@@ -312,13 +319,13 @@ List<Employee1> employees = [
     rating: 3.9,
     review: 105,
     fullName: 'Золзаяа',
-    email: 'zoloozol.@gmail.com',
+    email: 'zoloozol@gmail.com',
     phoneNumber: '85534890',
     address: 'Хүннү хотхон',
     dateOfBirth: DateTime(1990, 10, 10),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Золзаяа',
+    categorytext: 'Хувцас угаалга',
     category: 'Угаалга',
     salary: 55000,
     password: '23456',
@@ -330,15 +337,15 @@ List<Employee1> employees = [
     rating: 5.0,
     review: 200,
     fullName: 'Баатар',
-    email: 'baatarunur.1208@gmail.com',
+    email: 'baatarunur1208@gmail.com',
     phoneNumber: '91321111',
     address: 'Зайсан',
     dateOfBirth: DateTime(1980, 12, 5),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Баатар',
+    categorytext: 'Хивс угаалга',
     salary: 65000,
-    category: 'Хивс угаалга',
+    category: 'Угаалга',
     password: 'Az88888',
     url:
         'https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg',
@@ -348,13 +355,13 @@ List<Employee1> employees = [
     review: 135,
     rating: 3.3,
     fullName: 'Азбаяр',
-    email: 'azbayr.9@gmail.com',
+    email: 'azbayr@gmail.com',
     phoneNumber: '99153463',
     address: 'Саппоро',
     dateOfBirth: DateTime(1990, 08, 12),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: ' Азбаяр',
+    categorytext: ' Буйдан засвар',
     category: 'Засвар',
     password: '945638',
     salary: 40000,
@@ -366,14 +373,14 @@ List<Employee1> employees = [
     review: 125,
     rating: 3.9,
     fullName: 'Навчаа',
-    email: 'navchaa.navhch453@gmail.com',
+    email: 'navhch453@gmail.com',
     phoneNumber: '88850990',
     address: 'Жуков',
     dateOfBirth: DateTime(1992, 11, 23),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Навчаа',
-    category: 'Гоо Сайхан',
+    categorytext: 'Хана засвар',
+    category: 'Засвар',
     password: 'skin12567',
     salary: 53000,
     url:
@@ -384,13 +391,13 @@ List<Employee1> employees = [
     review: 180,
     rating: 4.1,
     fullName: 'Болдоо',
-    email: 'bold1<>@@gmail.com',
+    email: 'bold1@gmail.com',
     phoneNumber: '90122312',
     address: 'Чингэлтэй дүүрэг',
     dateOfBirth: DateTime(1983, 04, 01),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Болдоо',
+    categorytext: 'Сантехникийн үйлчилгээ',
     category: 'Сантехник',
     password: 'q198457',
     salary: 53000,
@@ -408,7 +415,7 @@ List<Employee1> employees = [
     dateOfBirth: DateTime(1991, 12, 27),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Энхмаа',
+    categorytext: 'Бүх биеийн бариа',
     category: 'Массаж',
     password: '123456',
     salary: 56000,
@@ -420,14 +427,14 @@ List<Employee1> employees = [
     review: 112,
     rating: 2.9,
     fullName: 'Мөнх-Эрдэнэ',
-    email: 'munhuuerdne.a@gmail.com',
+    email: 'munhuuerdnea@gmail.com',
     phoneNumber: '97321244',
     address: 'Хүүхдийн 100',
     dateOfBirth: DateTime(1996, 09, 30),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Мөнх-Эрдэнэ',
-    category: 'Массаж',
+    categorytext: 'Гал тогооны хэрэгсэл',
+    category: 'Цахилгаан хэрэгсэл',
     password: 'munku4321',
     salary: 38000,
     url:
@@ -444,7 +451,7 @@ List<Employee1> employees = [
     dateOfBirth: DateTime(1984, 09, 24),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Дуламсүрэн',
+    categorytext: 'Тааз цэвэрлэгээ',
     category: 'Цэвэрлэгээ',
     password: 'ц534678',
     salary: 52000,
@@ -456,13 +463,13 @@ List<Employee1> employees = [
     review: 145,
     rating: 4.3,
     fullName: 'Амгаланбаатар',
-    email: 'Amgaa.amga@gmail.com',
+    email: 'Amgaamga@gmail.com',
     phoneNumber: '96437648',
     address: 'ТБД Андууд',
     dateOfBirth: DateTime(2000, 11, 26),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Амгаланбаатар',
+    categorytext: 'Халуун, хүйтэн ус холболт',
     category: 'Сантехник',
     password: '2188684',
     salary: 58000,
@@ -474,14 +481,14 @@ List<Employee1> employees = [
     review: 145,
     rating: 4.6,
     fullName: 'Нандин',
-    email: 'nandia.b0903@gmail.com',
+    email: 'nandiab0903@gmail.com',
     phoneNumber: '95256017',
     address: 'Яармаг',
     dateOfBirth: DateTime(1985, 09, 03),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Нандин',
-    category: 'Гоо сайхан',
+    categorytext: 'Зурагт засвар',
+    category: 'Цахилгаан хэрэгсэл',
     password: '98768',
     salary: 57500,
     url:
@@ -498,7 +505,7 @@ List<Employee1> employees = [
     dateOfBirth: DateTime(1993, 03, 18),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Галаа',
+    categorytext: 'Нэмэлт залгуур гаргах',
     category: 'Цахилгаан хэрэгсэл',
     password: '123456',
     salary: 46000,
@@ -516,7 +523,7 @@ List<Employee1> employees = [
     dateOfBirth: DateTime(1989, 06, 21),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Баярмаа',
+    categorytext: 'Угаалгын үйлчилгээ',
     category: 'Угаалга',
     password: 'key4563',
     salary: 53000,
@@ -534,7 +541,7 @@ List<Employee1> employees = [
     dateOfBirth: DateTime(1999, 07, 11),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Мөнхжин',
+    categorytext: 'Машин засвар',
     category: 'Засвар',
     password: 'muuju234',
     salary: 60000,
@@ -552,8 +559,8 @@ List<Employee1> employees = [
     dateOfBirth: DateTime(2001, 04, 19),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Бээри',
-    category: 'Гоо Сайхан',
+    categorytext: 'Тавилга зөөх',
+    category: 'Засвар',
     password: 'azbeery1208',
     salary: 65000,
     url:
@@ -570,7 +577,7 @@ List<Employee1> employees = [
     dateOfBirth: DateTime(1885, 08, 24),
     description:
         'Lorem ipsum is a dummy text without any sense. It is a sequence of Latin words that, as they are positioned, do not form sentences with a complete sense, but give life to a test text useful to fill spaces that will subsequently be occupied from ad hoc texts composed by communication professionals.',
-    categorytext: 'Ану-Дөл',
+    categorytext: 'Хивс цэвэрлэгээ',
     category: 'Цэвэрлэгээ',
     password: 'massa1234',
     salary: 63000,
@@ -578,25 +585,37 @@ List<Employee1> employees = [
         'https://4.imimg.com/data4/VI/RP/MY-7627491/housekeeping-apron-500x500.jpeg',
     uploadedAt: DateTime(1985, 08, 24),
   ),
-];
-List<EmployeeCard> employeeLists = [
-  EmployeeCard(
-    employee: Employee1(
-      rating: 3.9,
-      review: 42,
-      fullName: 'Carol Williams',
-      email: 'carol.williams@example.com',
-      phoneNumber: '+12345678903',
-      address: '789 Pine Lane',
-      dateOfBirth: DateTime(1992, 3, 3),
-      description: 'Product Manager',
-      categorytext: 'Carol',
-      salary: 50000,
-      category: 'Сантехник',
-      password: '123456',
-      url: 'https://example.com/photo-carol.jpg',
-      uploadedAt: DateTime(1990, 1, 1),
-    ),
+  Employee1(
+    rating: 3.9,
+    review: 42,
+    fullName: 'Carol Williams',
+    email: 'carol.williams@example.com',
+    phoneNumber: '+12345678903',
+    address: '789 Pine Lane',
+    dateOfBirth: DateTime(1992, 3, 3),
+    description: 'Product Manager',
+    categorytext: 'Оффисын хана будах',
+    salary: 50000,
+    category: 'Будаг',
+    password: '123456',
+    url: 'https://example.com/photo-carol.jpg',
+    uploadedAt: DateTime(1990, 1, 1),
+  ),
+  Employee1(
+    rating: 3.9,
+    review: 42,
+    fullName: 'Carol Williams',
+    email: 'carol.williams@example.com',
+    phoneNumber: '+12345678903',
+    address: '789 Pine Lane',
+    dateOfBirth: DateTime(1992, 3, 3),
+    description: 'Product Manager',
+    categorytext: 'Хана будах',
+    salary: 50000,
+    category: 'Будаг',
+    password: '123456',
+    url: 'https://example.com/photo-carol.jpg',
+    uploadedAt: DateTime(1990, 1, 1),
   ),
 ];
 
@@ -630,6 +649,10 @@ List<ServiceItemCard> serviceListItems = [
   ServiceItemCard(
     serviceItem: ServiceItem(
         color: Color(0xffCC0100), icon: Icons.favorite, name: 'Массаж'),
+  ),
+  ServiceItemCard(
+    serviceItem: ServiceItem(
+        color: Color(0xffCC0100), icon: Icons.favorite, name: 'Будах'),
   ),
 ];
 

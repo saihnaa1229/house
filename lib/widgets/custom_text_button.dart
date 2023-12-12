@@ -15,14 +15,14 @@ class CustomTextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 3.h),
+      // margin: EdgeInsets.only(top: 3.h),
       height: 7.h,
       width: double.infinity,
       child: TextButton(
         style: TextButton.styleFrom(
           backgroundColor: kPrimaryColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5.w),
+            borderRadius: BorderRadius.circular(15.w),
           ),
         ),
         onPressed: () {

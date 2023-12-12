@@ -12,8 +12,9 @@ import 'package:test_fire/util/constants.dart';
 
 class EmployeeCard extends StatelessWidget {
   final Employee1 employee;
+  final String employeeId;
 
-  EmployeeCard({required this.employee});
+  EmployeeCard({required this.employee, required this.employeeId});
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +24,14 @@ class EmployeeCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => EmployeeScreen(
+              employeeId: employeeId,
               employee: employee,
             ),
           ),
         );
       },
       child: Container(
-        padding: EdgeInsets.all(4.w),
+        padding: EdgeInsets.all(2.w),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(5.w),
@@ -47,8 +49,8 @@ class EmployeeCard extends StatelessWidget {
           children: [
             Container(
               margin: EdgeInsets.symmetric(horizontal: 2.5.w),
-              height: 25.w,
-              width: 25.w,
+              height: 30.w,
+              width: 30.w,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -69,7 +71,7 @@ class EmployeeCard extends StatelessWidget {
                     style: kRegular10,
                   ),
                   Text(
-                    employee.category,
+                    employee.categorytext,
                     style: kSemibold14,
                   ),
                   SizedBox(

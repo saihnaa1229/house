@@ -1,14 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Admin {
-  final String userId;
-  final String img;
-  final String fullname;
-  final String username;
-  final String birth;
-  final String email;
-  final String number;
-  final String address;
+  String userId;
+  String img;
+  String fullname;
+  String birth;
+  String email;
+  String number;
+  String address;
 
   Admin({
     required this.userId,
@@ -18,7 +17,6 @@ class Admin {
     required this.email,
     required this.fullname,
     required this.number,
-    required this.username,
   });
 
   factory Admin.fromDocumentSnapshot(DocumentSnapshot doc) {
@@ -28,7 +26,6 @@ class Admin {
       fullname: json['fullname'] ?? '',
       email: json['email'] ?? '',
       number: json['number'] ?? '',
-      username: json['username'] ?? '',
       birth: json['birth'] ?? '',
       address: json['address'] ?? '',
       img: json['img'] ?? '',

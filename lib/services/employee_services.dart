@@ -10,20 +10,17 @@ class EmployeeService {
   Future<void> addEmployeesWithAccounts(List<Employee1> employees) async {
     for (var employee in employees) {
       try {
-        // Create User Account
         UserCredential userCredential =
             await _auth.createUserWithEmailAndPassword(
           email: employee.email,
           password: employee.password,
         );
 
-        // Get the UID and use it as the document ID in Firestore
         String uid = userCredential.user!.uid;
         await _firestore.collection('employee').doc(uid).set(employee.toMap());
 
         print('Employee account and data added for: ${employee.fullName}');
       } catch (e) {
-        // Handle errors (e.g., email already in use, Firebase auth exceptions)
         print(
             'Error creating account or adding data for ${employee.fullName}: $e');
       }

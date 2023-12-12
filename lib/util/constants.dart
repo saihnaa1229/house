@@ -5,6 +5,7 @@ import 'package:test_fire/services/home_service.dart';
 
 final FirebaseFirestore firestore = FirebaseFirestore.instance;
 final HomeServices homeServices = HomeServices();
+typedef CounterChangedCallback = void Function(int newCount);
 
 const kLoginText = 'Нэвтрэх';
 const kHomeScreenHintText = "Хайх";
@@ -51,6 +52,16 @@ final kRegular12 = TextStyle(
 final kRegular10 = TextStyle(
   fontSize: 10.sp,
   fontWeight: FontWeight.w300,
+);
+
+final kBold10 = TextStyle(
+  fontSize: 10.sp,
+  fontWeight: FontWeight.w600,
+);
+
+final kBold12 = TextStyle(
+  fontSize: 12.sp,
+  fontWeight: FontWeight.w600,
 );
 
 final kSemibold16 = TextStyle(

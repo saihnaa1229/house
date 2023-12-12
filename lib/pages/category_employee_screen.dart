@@ -22,7 +22,6 @@ class _CategoryScreenStateState extends State<CategoryScreenState> {
   void initState() {
     super.initState();
     _employeeItems = homeServices.getEmployeeDetails(widget.docId);
-    // Assuming that HomeService is instantiated correctly.
   }
 
   @override

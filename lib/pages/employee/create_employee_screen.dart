@@ -149,11 +149,9 @@ class _CreateEmployeeState extends State<CreateEmployee> {
     } on FirebaseAuthException catch (error) {
       print('--------------------------------');
       print(error);
-      Utils.showSnackBar(error
-          .message); // Assuming Utils is a utility class you have for showing snack bars
+      Utils.showSnackBar(error.message);
     } catch (e) {
       print('ssssssssssssssssssssssssss');
-      // Handle any other errors
       print(e);
       Utils.showSnackBar(e.toString());
     }

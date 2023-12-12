@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../util/constants.dart';
+import '../../util/constants.dart';
 
 class BottomNavigationItem extends StatelessWidget {
   final Icon icon;

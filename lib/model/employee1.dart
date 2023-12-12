@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Employee1 {
+  String? id;
   String fullName;
   String phoneNumber;
   String email;
@@ -17,7 +18,8 @@ class Employee1 {
   double rating;
 
   Employee1(
-      {required this.fullName,
+      {this.id,
+      required this.fullName,
       required this.email,
       required this.phoneNumber,
       required this.address,
@@ -36,6 +38,7 @@ class Employee1 {
     Map<String, dynamic> json = doc.data() as Map<String, dynamic>;
 
     return Employee1(
+      id: json['id'],
       rating: json['rating'],
       review: json['review'],
       salary: json['salary'],
@@ -48,7 +51,7 @@ class Employee1 {
           ? DateTime.parse(json['dateOfBirth'])
           : DateTime.now(),
       description: json['description'] ?? '',
-      categorytext: json['nickname'] ?? '',
+      categorytext: json['categorytext'] ?? '',
       category: json['category'] ?? '',
       url: json['url'] ?? '',
       uploadedAt: json['dateOfBirth'] != null
@@ -56,10 +59,12 @@ class Employee1 {
           : DateTime.now(),
     );
   }
+  // Inside your Employee1 class
 
   // Create a method to convert employee1 data to a map, useful for uploading data to Firestore
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'rating': rating,
       'review': review,
       'fullName': fullName,
@@ -70,7 +75,7 @@ class Employee1 {
       'address': address,
       'dateOfBirth': dateOfBirth.toIso8601String(),
       'description': description,
-      'categorytext': categorytext,
+      'categorytext': categorytext.toLowerCase().trim(),
       'category': category,
       // 'password': password,  // Do not store passwords in the database
       'uploadedAt': uploadedAt.toIso8601String(),
