@@ -8,6 +8,7 @@ import '../../model/admin.dart';
 import '../../util/constants.dart';
 import '../../util/user.dart';
 import '../../widgets/alert_button.dart';
+import '../../widgets/custom_app_bar.dart';
 import '../auth/log_in_screen.dart';
 import '../employee/create_employee_screen.dart';
 
@@ -25,6 +26,12 @@ class _AdminProfileState extends State<AdminProfile> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        appBar: CustomAppBar(
+          title: 'Админ хуудас',
+          center: false,
+          leadIcon: Icon(Icons.arrow_back_rounded),
+          bgColor: kScaffoldColor,
+        ),
         body: Container(
           padding: EdgeInsets.all(5.w),
           child: Column(
@@ -36,8 +43,6 @@ class _AdminProfileState extends State<AdminProfile> {
                     : AssetImage('assets/default-avatar.png') as ImageProvider,
                 backgroundColor: Colors.grey.shade300,
               ),
-              SizedBox(height: 24),
-              Text(widget.admin.fullname, style: kbold18),
               SizedBox(height: 24),
               ListTile(
                 title: Text(
@@ -91,6 +96,9 @@ class _AdminProfileState extends State<AdminProfile> {
                       MaterialPageRoute(
                           builder: (context) => CreateEmployee()));
                 },
+              ),
+              SizedBox(
+                height: 10.w,
               ),
               CustomTextButton(
                 onPressed: () {

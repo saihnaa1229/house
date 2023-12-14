@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -33,6 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<EmployeeCard>>? _employees;
   List<String> _categories = HomeServices.getServicesList();
   String? userRole;
+  String value = '';
+
   Future<void> loadData() async {
     _employees = homeServices.getAllEmployees();
     userRole = UserPreferences.getUserRole();
@@ -42,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     loadData();
+    getValue(_selectedChipIndex);
   }
 
   @override
@@ -54,58 +59,61 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           body: SingleChildScrollView(
             child: Container(
-                padding: EdgeInsets.fromLTRB(5.w, 2.w, 5.w, 5.w),
-                child: Column(
-                  children: [
-                    MySearchScreen(),
-                    CategoryText('Урамшуулал', 'Бүгдийг харах', () {}),
-                    BannerSlider(
-                      carouselItems: _carouselItems,
+              padding: EdgeInsets.fromLTRB(5.w, 2.w, 5.w, 5.w),
+              child: Column(
+                children: [
+                  MySearchScreen(),
+                  CategoryText('Урамшуулал', 'Бүгдийг харах', () {}),
+                  BannerSlider(
+                    carouselItems: _carouselItems,
+                  ),
+                  CategoryText('Үйлчилгээ', 'Бүгдийг харах', () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => AllServices()));
+                  }),
+                  ServicesItemContainer(
+                    serviesItems: _servicesItems,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 5.w),
+                    child: Divider(
+                      height: 2.sp,
+                      thickness: 2.sp,
+                      color: kTextFieldColor,
                     ),
-                    CategoryText('Үйлчилгээ', 'Бүгдийг харах', () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => AllServices()));
-                    }),
-                    ServicesItemContainer(
-                      serviesItems: _servicesItems,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 5.w),
-                      child: Divider(
-                        height: 2.sp,
-                        thickness: 2.sp,
-                        color: kTextFieldColor,
-                      ),
-                    ),
-                    CategoryText('Эрэлттэй үйлчилгээ', 'Бүгдийг харах', () {}),
-                    CategorySelect(),
-                    SizedBox(
-                      height: 5.w,
-                    ),
-                    FutureBuilder<List<EmployeeCard>>(
-                      future: _employees,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          return Text("Error: ${snapshot.error}");
-                        } else if (snapshot.hasData) {
-                          List<EmployeeCard> _employees = snapshot.data!;
-                          return SingleChildScrollView(
+                  ),
+                  CategoryText('Эрэлттэй үйлчилгээ', 'Бүгдийг харах', () {}),
+                  CategorySelect(),
+                  SizedBox(
+                    height: 5.w,
+                  ),
+                  FutureBuilder<List<EmployeeCard>>(
+                    future: _employees,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Container(
+                            height: 87.h,
+                            child: Center(child: CircularProgressIndicator()));
+                      } else if (snapshot.hasError) {
+                        return Text("Error: ${snapshot.error}");
+                      } else if (snapshot.hasData) {
+                        List<EmployeeCard> _employees = snapshot.data!;
+                        return SingleChildScrollView(
+                          child: Container(
+                            height: 87.h,
                             child: EmployeeContainer(
                               employee: _employees,
                             ),
-                          );
-                        } else {
-                          return Text("No products found");
-                        }
-                      },
-                    ),
-                  ],
-                )),
+                          ),
+                        );
+                      } else {
+                        return Text("No products found");
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
           bottomNavigationBar:
               BottomNavigationContainer(bottomBarIndex: bottomBarIndex)),
@@ -131,6 +139,8 @@ class _HomeScreenState extends State<HomeScreen> {
               onSelected: (bool selected) {
                 setState(() {
                   _selectedChipIndex = selected ? index : 0;
+                  _employees = homeServices
+                      .getEmployeeDetails(getValue(_selectedChipIndex));
                 });
               },
               labelStyle: TextStyle(
@@ -199,6 +209,41 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  String getValue(int index) {
+    // Map the input field to the UserModel field
+    switch (index) {
+      case 0:
+        value = 'Цэвэрлэгээ';
+        break;
+      case 1:
+        value = 'Засвар';
+        break;
+      case 2:
+        value = 'Угаалга';
+        break;
+      case 3:
+        value = 'Цахилгаан хэрэгсэл';
+        break;
+      case 4:
+        value = 'Сантехник';
+        break;
+      case 5:
+        value = 'Гоо сайхан';
+        break;
+      case 6:
+        value = 'Массаж';
+        break;
+      case 7:
+        value = 'Будах';
+        break;
+
+      default:
+        break;
+    }
+
+    return value;
   }
 
   Container HomeAppBar() {

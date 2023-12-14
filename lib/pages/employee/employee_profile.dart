@@ -3,9 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:test_fire/model/employee1.dart';
+import 'package:test_fire/util/constants.dart';
 
 import '../../util/user.dart';
 import '../../widgets/alert_button.dart';
+import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_text_button.dart';
 import '../auth/log_in_screen.dart';
 
@@ -23,6 +25,12 @@ class _EmployeeProfileState extends State<EmployeeProfile> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
+      appBar: CustomAppBar(
+        title: 'Ажилтны хуудас',
+        center: false,
+        leadIcon: Icon(Icons.arrow_back_rounded),
+        bgColor: kScaffoldColor,
+      ),
       body: Container(
         padding: EdgeInsets.all(5.w),
         child: SingleChildScrollView(

@@ -72,18 +72,6 @@ class HomeServices {
     }
   }
 
-  // static User getUserDetail() {
-  //   return User(
-  //       userId: 0,
-  //       img: 'assets/images/profile.webp',
-  //       address: 'address',
-  //       birth: 'birth',
-  //       email: 'email',
-  //       fullname: 'fullname',
-  //       number: 'number',
-  //       username: 'username');
-  // }
-
   static List<String> getCarouselItems() {
     List<String> temp = [];
     temp.add(

@@ -12,6 +12,7 @@ import 'package:test_fire/pages/booking_screen.dart';
 import 'package:test_fire/pages/employee/create_employee_screen.dart';
 import 'package:test_fire/pages/category_employee_screen.dart';
 import 'package:test_fire/pages/employee/get_employee_information.dart';
+import 'package:test_fire/pages/filter_screen.dart';
 import 'package:test_fire/pages/get_user_information.dart';
 import 'package:test_fire/pages/homepage/home_screen.dart';
 import 'package:test_fire/pages/auth/sign_up_screen.dart';

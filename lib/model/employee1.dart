@@ -59,9 +59,7 @@ class Employee1 {
           : DateTime.now(),
     );
   }
-  // Inside your Employee1 class
-
-  // Create a method to convert employee1 data to a map, useful for uploading data to Firestore
+  
   Map<String, dynamic> toMap() {
     return {
       'id': id,

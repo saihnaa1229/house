@@ -65,7 +65,7 @@ class _MySearchScreenState extends State<MySearchScreen> {
     } else if (searchResults.length == 1) {
       containerHeight = 20.h; // Height for exactly one search result
     } else {
-      containerHeight = (searchResults.length * 16.h)
+      containerHeight = (searchResults.length * 13.h)
           .clamp(10.h, 60.h); // Dynamic height for more than one result
     }
     return Container(
@@ -130,10 +130,11 @@ class _MySearchScreenState extends State<MySearchScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Container(
-                              margin: EdgeInsets.symmetric(horizontal: 3.w),
+                              margin: EdgeInsets.only(right: 3.w),
                               child: Image.network(
                                 product.url, // Use ProductDetail property
                                 height: 8.h,
+                                width: 10.h,
                               ),
                             ),
                             Column(
@@ -141,7 +142,6 @@ class _MySearchScreenState extends State<MySearchScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  width: 35.w,
                                   child: Text(
                                     product
                                         .fullName, // Use ProductDetail property
@@ -149,7 +149,7 @@ class _MySearchScreenState extends State<MySearchScreen> {
                                   ),
                                 ),
                                 Text(
-                                  ("₮${product.categorytext}"), // Use ProductDetail property
+                                  ("${product.categorytext}"), // Use ProductDetail property
                                   style: kRegular12,
                                 ),
                               ],

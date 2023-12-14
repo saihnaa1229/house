@@ -32,7 +32,6 @@ class ServiceItemCard extends StatelessWidget {
               padding: EdgeInsets.all(4.w),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50.h),
-                // border: Border.all(width: 1.sp, color: serviceItem.color),
                 color: serviceItem.color.withOpacity(0.25),
               ),
               child: Column(

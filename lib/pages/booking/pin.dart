@@ -46,6 +46,7 @@ class _PinCodeScreenState extends State<PinCodeScreen> {
           pin += value;
           if (pin.length == 4) {
             _verifyPin();
+            print('object');
           }
         }
       }

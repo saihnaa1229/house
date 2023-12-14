@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -145,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      Utils.showSnackBar('Please enter both email and password.');
+      Utils.showSnackBar('Бүх талбарыг бөглөнө үү.');
       return;
     }
 
@@ -162,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (error) {
       Utils.showSnackBar(error.message);
     } catch (e) {
-      Utils.showSnackBar('An error occurred: ${e.toString()}');
+      Utils.showSnackBar('Алдаа: ${e.toString()}');
     }
   }
 
@@ -170,16 +172,11 @@ class _LoginScreenState extends State<LoginScreen> {
       String userId, BuildContext context) async {
     String? userRole;
 
-    // Check the user's role from the 'admin' collection
     if (await checkIfDocumentExists('admin', userId)) {
       userRole = 'admin';
-    }
-    // Check the user's role from the 'employee' collection
-    else if (await checkIfDocumentExists('employee', userId)) {
+    } else if (await checkIfDocumentExists('employee', userId)) {
       userRole = 'employee';
-    }
-    // Check the user's role from the 'users' collection
-    else if (await checkIfDocumentExists('users', userId)) {
+    } else if (await checkIfDocumentExists('users', userId)) {
       userRole = 'user';
     }
 
@@ -188,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await UserPreferences.setUserRole(userRole);
       navigateToRoleBasedScreen(userRole, context);
     } else {
-      Utils.showSnackBar('No user data found in Firestore for this user.');
+      Utils.showSnackBar('Хэрэглэгч олдсонгүй.');
     }
   }
 

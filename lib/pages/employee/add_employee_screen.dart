@@ -191,7 +191,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
               .add({
             'url': downloadUrl,
             'uploaded_at': FieldValue
-                .serverTimestamp(), // Adds a server timestamp for when the image is uploaded
+                .serverTimestamp(), 
           });
         } catch (e) {
           // Handle errors

@@ -251,9 +251,7 @@ class _BookingEmployeeScreenState extends State<BookingEmployeeScreen> {
     if (selectedDay == null) {
       return 'No date selected';
     } else {
-      // Define the format
       final DateFormat formatter = DateFormat('yyyy-MM-dd');
-      // Format the DateTime object
       return formatter.format(selectedDay);
     }
   }

@@ -1,11 +1,16 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, unnecessary_null_comparison, avoid_print
 
+import 'dart:io';
+
+import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:test_fire/util/user.dart';
-
+import 'package:path/path.dart' as path;
+import 'package:test_fire/widgets/custom_app_bar.dart';
 import '../model/user.dart';
 import '../util/constants.dart';
 import '../widgets/alert_button.dart';
@@ -21,22 +26,42 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
+  CameraController? _cameraController;
+
+  @override
+  void dispose() {
+    _cameraController?.dispose();
+// TODO: implement dispose
+    super.dispose();
+  }
+
   String? id = UserPreferences.getUser();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
+      appBar: CustomAppBar(
+        title: 'Хэрэглэгчийн хуудас',
+        center: false,
+        leadIcon: Icon(Icons.arrow_back_rounded),
+      ),
       body: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.all(5.w),
           child: Column(
             children: [
-              CircleAvatar(
-                radius: 50.sp,
-                backgroundImage: widget.userData.img.isNotEmpty
-                    ? NetworkImage(widget.userData.img)
-                    : AssetImage('assets/default-avatar.png') as ImageProvider,
-                backgroundColor: Colors.grey.shade300,
+              GestureDetector(
+                onTap: () {
+                  takePicture(context);
+                },
+                child: CircleAvatar(
+                  radius: 50.sp,
+                  backgroundImage: widget.userData.img.isNotEmpty
+                      ? NetworkImage(widget.userData.img)
+                      : AssetImage('assets/default-avatar.png')
+                          as ImageProvider,
+                  backgroundColor: Colors.grey.shade300,
+                ),
               ),
               SizedBox(height: 24),
               Text(
@@ -287,5 +312,90 @@ class _UserProfileState extends State<UserProfile> {
     DocumentSnapshot userDoc =
         await firestore.collection('users').doc(userId).get();
     return userDoc['pin'];
+  }
+
+  Future<void> takePicture(BuildContext context) async {
+    try {
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) {
+        print("No cameras available");
+        return;
+      }
+
+      final firstCamera = cameras.first;
+
+      _cameraController = CameraController(
+        firstCamera,
+        ResolutionPreset.medium,
+      );
+
+      await _cameraController!.initialize();
+
+      if (!_cameraController!.value.isInitialized) {
+        print("Camera initialization failed");
+        return;
+      }
+
+      final XFile file = await _cameraController!.takePicture();
+
+      if (file != null) {
+        uploadImageToFirebaseStorage(File(file.path), context);
+      }
+    } catch (e) {
+      print("Error in takePicture: $e");
+      // Consider showing this error to the user
+    } finally {
+      await _cameraController!.dispose();
+    }
+  }
+
+  Future<void> uploadImageToFirebaseStorage(
+      File image, BuildContext context) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    // Showing a loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
+
+    try {
+      // Create a reference to the location you want to upload to in Firebase Storage
+      Reference ref = FirebaseStorage.instance
+          .ref()
+          .child('users/$userId/${DateTime.now().millisecondsSinceEpoch}.png');
+
+      // Upload the file
+      await ref.putFile(image);
+
+      // Get the URL
+      String downloadURL = await ref.getDownloadURL();
+
+      // Save the URL to Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({
+        'img': downloadURL,
+      });
+
+      Navigator.pop(context); // Close the loading indicator
+
+      // // Navigate to next screen or update UI
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => HomeScreen(),
+      //   ),
+      // ); // Replace with your actual next screen
+    } catch (e) {
+      Navigator.pop(context); // Close the loading indicator
+      print("Error in uploadImageToFirebaseStorage: $e"); // Handle error
+
+      // Show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to upload image: ${e.toString()}")),
+      );
+    }
   }
 }

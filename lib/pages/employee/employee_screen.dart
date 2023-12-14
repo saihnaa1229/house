@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:readmore/readmore.dart';
 import 'package:sizer/sizer.dart';
@@ -6,7 +8,6 @@ import 'package:test_fire/model/employee1.dart';
 import 'package:test_fire/pages/booking/booking_employee.dart';
 import 'package:test_fire/widgets/custom_text_button.dart';
 
-import '../../util/constants.dart';
 import '../../util/constants.dart';
 
 class EmployeeScreen extends StatefulWidget {
