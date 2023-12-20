@@ -7,6 +7,7 @@ import 'package:test_fire/services/home_service.dart';
 import 'package:test_fire/widgets/app_bar.dart';
 import 'package:test_fire/widgets/bottomNavigationBar/custom_bottom_navigation.dart';
 
+import '../model/book_order.dart';
 import '../util/constants.dart';
 import '../util/user.dart';
 import '../widgets/booking_item_card.dart';
@@ -20,10 +21,12 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   // int topItemIndex = 0;
-  int _selectedChipIndex = 1;
-  List<BookingItemCard>? _bookingItemCards;
+  int _selectedChipIndex = 0;
+  Future<List<BookingItemCard>>? _bookings;
   int bottomBarIndex = 1;
+  String selectedStatus = 'Хүлээгдэж буй';
   String? userRole;
+
   @override
   void initState() {
     loadData();
@@ -33,10 +36,8 @@ class _BookingScreenState extends State<BookingScreen> {
   Future<void> loadData() async {
     userRole = UserPreferences.getUserRole();
     HomeServices homeServices = HomeServices();
-    _bookingItemCards = homeServices.getBookingDetails(_selectedChipIndex);
-    _bookingItemCards = (bottomBarIndex == 1)
-        ? await homeServices.getBookingDetails(_selectedChipIndex)
-        : await null;
+    _bookings = homeServices.getBookingsByStatus(selectedStatus);
+    print(selectedStatus);
   }
 
   List<String> _bookingStatus = HomeServices.getBookingStatus();
@@ -56,21 +57,52 @@ class _BookingScreenState extends State<BookingScreen> {
           body: Padding(
             padding: EdgeInsets.fromLTRB(5.w, 0, 5.w, 5.w),
             child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  CategorySelect(),
-                  _bookingItemCards == null
-                      ? Container()
-                      : BookingItemCardContainer(
-                          bookingItem: _bookingItemCards!,
-                        )
-                ],
-              ),
+              child: Column(children: [
+                CategorySelect(),
+                FutureBuilder<List<BookingItemCard>>(
+                  future: _bookings,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                          height: 87.h,
+                          child: Center(child: CircularProgressIndicator()));
+                    } else if (snapshot.hasError) {
+                      return Text("Error: ${snapshot.error}");
+                    } else if (snapshot.hasData) {
+                      List<BookingItemCard> _bookings = snapshot.data!;
+                      return SingleChildScrollView(
+                        child: Container(
+                            height: 87.h,
+                            child: BookingItemCardContainer(
+                              bookingItem: _bookings,
+                            )),
+                      );
+                    } else {
+                      return Text("No products found");
+                    }
+                  },
+                ),
+              ]),
             ),
           ),
           bottomNavigationBar:
               BottomNavigationContainer(bottomBarIndex: bottomBarIndex)),
     );
+  }
+
+  Future<void> selectedStat(int index) async {
+    switch (index) {
+      case 0:
+        selectedStatus = 'Хүлээгдэж буй';
+        break;
+      case 1:
+        selectedStatus = 'Баталгаажсан';
+        break;
+      case 2:
+        selectedStatus = 'Цуцалсан';
+        break;
+      default:
+    }
   }
 
   Container CategorySelect() {
@@ -88,6 +120,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   setState(() {});
                   _selectedChipIndex = index;
                   isSelected = _selectedChipIndex == index;
+                  selectedStat(index);
                   loadData();
                 },
                 child: Container(

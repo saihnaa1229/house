@@ -7,12 +7,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:sizer/sizer.dart';
 import 'package:path/path.dart' as path;
 import 'package:test_fire/services/home_service.dart';
 import 'package:test_fire/util/employee.dart';
-import 'package:test_fire/util/user.dart';
 import '../../util/constants.dart';
 import '../../util/utils.dart';
 import '../../widgets/custom_text_button.dart';
@@ -63,7 +61,7 @@ class _CreateEmployeeState extends State<CreateEmployee> {
                   label: null,
                   controller: _emailController,
                   obScure: false,
-                  inputType: true,
+                  inputType: false,
                   leadIcon: FontAwesomeIcons.envelope,
                 ),
                 SizedBox(
@@ -109,7 +107,7 @@ class _CreateEmployeeState extends State<CreateEmployee> {
                     text: 'Үүсгэх',
                     onPressed: () {
                       Navigator.pushNamed(context, 'GetEmployeeInformation');
-                      // createEmployee(context);
+                      createEmployee(context);
                     }),
                 SizedBox(height: 4.h),
               ],

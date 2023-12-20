@@ -79,7 +79,7 @@ class _AboutEmployeeState extends State<AboutEmployee> {
                     text: 'Хадгалах',
                     onPressed: () {
                       print(selectedCategory);
-                      // saveEmployeeInformation();
+                      saveEmployeeInformation();
                       Navigator.pushNamed(context, 'AddWorkImages');
                     })
               ],

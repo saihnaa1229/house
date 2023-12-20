@@ -34,82 +34,92 @@ class _AdminProfileState extends State<AdminProfile> {
         ),
         body: Container(
           padding: EdgeInsets.all(5.w),
-          child: Column(
-            children: [
-              CircleAvatar(
-                radius: 50.sp,
-                backgroundImage: widget.admin.img.isNotEmpty
-                    ? NetworkImage(widget.admin.img)
-                    : AssetImage('assets/default-avatar.png') as ImageProvider,
-                backgroundColor: Colors.grey.shade300,
-              ),
-              SizedBox(height: 24),
-              ListTile(
-                title: Text(
-                  'Birth Date',
-                  style: kBold12,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Stack(children: [
+                  CircleAvatar(
+                    radius: 60.sp,
+                    backgroundImage: widget.admin.img.isNotEmpty
+                        ? NetworkImage(widget.admin.img)
+                        : AssetImage('assets/default-avatar.png')
+                            as ImageProvider,
+                    backgroundColor: Colors.grey.shade300,
+                  ),
+                  Positioned(
+                    right: 15.sp,
+                    bottom: 15.sp,
+                    child: Icon(
+                      Icons.image,
+                      size: 20.sp,
+                      color: kHintTextColor,
+                    ),
+                  )
+                ]),
+                ListTile(
+                  title: Text(
+                    'Birth Date',
+                    style: kBold12,
+                  ),
+                  subtitle: Text(widget.admin.birth),
+                  onTap: () {
+                    _editUserInfo('birth', widget.admin.birth);
+                  },
                 ),
-                subtitle: Text(widget.admin.birth),
-                onTap: () {
-                  _editUserInfo('birth', widget.admin.birth);
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Email',
-                  style: kBold12,
+                ListTile(
+                  title: Text(
+                    'Email',
+                    style: kBold12,
+                  ),
+                  subtitle: Text(widget.admin.email),
+                  onTap: () {
+                    _editUserInfo('email', widget.admin.email);
+                  },
                 ),
-                subtitle: Text(widget.admin.email),
-                onTap: () {
-                  _editUserInfo('email', widget.admin.email);
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Contact Number',
-                  style: kBold12,
+                ListTile(
+                  title: Text(
+                    'Contact Number',
+                    style: kBold12,
+                  ),
+                  subtitle: Text(widget.admin.number),
+                  onTap: () {
+                    _editUserInfo('number', widget.admin.number);
+                  },
                 ),
-                subtitle: Text(widget.admin.number),
-                onTap: () {
-                  _editUserInfo('number', widget.admin.number);
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Address',
-                  style: kBold12,
+                ListTile(
+                  title: Text(
+                    'Address',
+                    style: kBold12,
+                  ),
+                  subtitle: Text(widget.admin.address),
+                  onTap: () {
+                    _editUserInfo('address', widget.admin.address);
+                  },
                 ),
-                subtitle: Text(widget.admin.address),
-                onTap: () {
-                  _editUserInfo('address', widget.admin.address);
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Ажилтан нэмэх',
-                  style: kBold12,
+                ListTile(
+                  title: Text(
+                    'Ажилтан нэмэх',
+                    style: kBold12,
+                  ),
+                  onTap: () {
+                    FirebaseAuth.instance.signOut();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CreateEmployee()));
+                  },
                 ),
-                onTap: () {
-                  FirebaseAuth.instance.signOut();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CreateEmployee()));
-                },
-              ),
-              SizedBox(
-                height: 10.w,
-              ),
-              CustomTextButton(
-                onPressed: () {
-                  // Sign out the user when the button is pressed
-                  FirebaseAuth.instance.signOut();
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()));
-                },
-                text: "Гарах",
-              ),
-            ],
+                CustomTextButton(
+                  onPressed: () {
+                    // Sign out the user when the button is pressed
+                    FirebaseAuth.instance.signOut();
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()));
+                  },
+                  text: "Гарах",
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -212,6 +212,9 @@ class _BookingEmployeeScreenState extends State<BookingEmployeeScreen> {
                           obScure: false,
                           leadIcon: (Icons.house_rounded),
                         ),
+                        SizedBox(
+                          height: 2.h,
+                        ),
                       ],
                     ),
                   ),

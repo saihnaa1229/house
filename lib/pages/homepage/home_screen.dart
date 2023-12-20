@@ -63,7 +63,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 children: [
                   MySearchScreen(),
-                  CategoryText('Урамшуулал', 'Бүгдийг харах', () {}),
+                  CategoryText('Урамшуулал', 'Бүгдийг харах', () {
+                    print(userRole);
+                    print(UserPreferences.getUser());
+                  }),
                   BannerSlider(
                     carouselItems: _carouselItems,
                   ),
@@ -100,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         List<EmployeeCard> _employees = snapshot.data!;
                         return SingleChildScrollView(
                           child: Container(
-                            height: 87.h,
+                            height: 60.h,
                             child: EmployeeContainer(
                               employee: _employees,
                             ),

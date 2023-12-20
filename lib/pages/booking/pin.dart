@@ -125,27 +125,23 @@ class _PinCodeScreenState extends State<PinCodeScreen> {
       userId: userId ?? '',
       employeeId: widget.employeeId,
       selectedDay: DateTime.parse(widget.selectedDay),
-      timeSlot: widget.selectedTime,
+      startTime: widget.selectedTime,
       quantity: widget.workHour,
       address: widget.address,
       status: bookingStatus,
+      payment: widget.payment,
       bookingId: '',
     );
 
-    DocumentReference statusRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('bookings')
-        .doc(bookingStatus);
+    DocumentReference statusRef =
+        FirebaseFirestore.instance.collection('users').doc(userId);
 
     DocumentReference bookingDetailRef = statusRef.collection('bookings').doc();
 
     await bookingDetailRef.set(newBooking.toMap()).then((_) {
-      print('Booking detail created with ID: ${bookingDetailRef.id}');
       statusRef.update({'bookingId': bookingDetailRef.id});
       _showSuccessDialog();
     }).catchError((error) {
-      print('Error creating booking detail: $error');
       Utils.showSnackBar('Алдаа гарлаа: $error');
     });
   }
@@ -153,10 +149,7 @@ class _PinCodeScreenState extends State<PinCodeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Enter Your PIN'),
-        leading: BackButton(),
-      ),
+      appBar: appBar(),
       body: Container(
         padding: EdgeInsets.all(5.w),
         child: Column(
@@ -176,42 +169,53 @@ class _PinCodeScreenState extends State<PinCodeScreen> {
               ],
             ),
             SizedBox(height: 2.h),
-            Container(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: ['1', '2', '3']
-                        .map((number) => _buildNumberButton(number))
-                        .toList(),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: ['4', '5', '6']
-                        .map((number) => _buildNumberButton(number))
-                        .toList(),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: ['7', '8', '9']
-                        .map((number) => _buildNumberButton(number))
-                        .toList(),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildNumberButton('*', label: '*'),
-                      _buildNumberButton('0'),
-                      _buildNumberButton('delete', label: '⌫'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            buttons(),
           ],
         ),
       ),
+    );
+  }
+
+  Container buttons() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: ['1', '2', '3']
+                .map((number) => _buildNumberButton(number))
+                .toList(),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: ['4', '5', '6']
+                .map((number) => _buildNumberButton(number))
+                .toList(),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: ['7', '8', '9']
+                .map((number) => _buildNumberButton(number))
+                .toList(),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildNumberButton('*', label: '*'),
+              _buildNumberButton('0'),
+              _buildNumberButton('delete', label: '⌫'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  AppBar appBar() {
+    return AppBar(
+      title: Text('Enter Your PIN'),
+      leading: BackButton(),
     );
   }
 
@@ -247,7 +251,7 @@ class _PinCodeScreenState extends State<PinCodeScreen> {
                 ),
                 SizedBox(height: 16.0),
                 Text(
-                  'Booking Successful!',
+                  'Захиалга амжилттай!',
                   style: TextStyle(
                     fontSize: 24.0,
                     fontWeight: FontWeight.w700,
@@ -255,7 +259,7 @@ class _PinCodeScreenState extends State<PinCodeScreen> {
                 ),
                 SizedBox(height: 16.0),
                 Text(
-                  'You have successfully made payment and booked the services.',
+                  'Таны захиалгыг бүртгэгдлээ. Захиалга хуудсаас харна уу!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16.0,

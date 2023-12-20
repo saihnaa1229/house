@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   label: null,
                   controller: _emailController,
                   obScure: false,
-                  inputType: true, // Fix the input type
+                  inputType: false, // Fix the input type
                   leadIcon: FontAwesomeIcons.envelope,
                 ),
                 SizedBox(

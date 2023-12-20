@@ -19,7 +19,7 @@ class AlertTextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 34.w,
+      width: 30.w,
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15.w), color: kPrimaryColor),

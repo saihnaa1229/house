@@ -35,7 +35,6 @@ class _SplashScreenState extends State<SplashScreen> {
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         child: Center(
-          // decoration: BoxDecoration(color: Colors.red),
           child: Image.asset(
             'assets/images/houseLogo.png',
             height: 40.h,

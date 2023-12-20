@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import 'package:test_fire/pages/calendar_screen.dart';
 import 'package:test_fire/pages/homepage/home_screen.dart';
 
 import '../../pages/admin/admin_profile_scree.dart';
@@ -51,8 +52,11 @@ class _BottomNavigationContainerState extends State<BottomNavigationContainer> {
           iconText: 'Календарь',
           icon: Icon(Icons.shopping_cart_outlined),
           iconSize: 22.sp,
-          onPressed: () async {
-            homeServices.addEmployee();
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CalendarScreen()),
+            );
           },
         ),
         BottomNavigationItem(
@@ -60,6 +64,7 @@ class _BottomNavigationContainerState extends State<BottomNavigationContainer> {
           icon: Icon(Icons.favorite_border_rounded),
           iconSize: 22.sp,
           onPressed: () async {
+            // homeServices.addEmployee();
             homeServices.employeesByCategory();
             print('done');
           },

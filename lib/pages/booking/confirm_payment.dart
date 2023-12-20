@@ -132,7 +132,7 @@ class _ConfirmPaymentScreenState extends State<ConfirmPaymentScreen> {
                     MaterialPageRoute(
                       builder: (context) => PinCodeScreen(
                         employeeId: widget.employeeId,
-                        selectedTime: _getName(widget.selectedTime),
+                        selectedTime: _getWorkHour(widget.selectedTime),
                         selectedDay: widget.selectedDay,
                         address: widget.address,
                         workHour: widget.workHour,

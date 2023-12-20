@@ -104,7 +104,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
               CustomTextButton(
                   text: 'Үргэлжлүүлэх',
                   onPressed: () {
-                    // print(_getData(selectedChoiceIndex));
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -125,19 +124,4 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
     );
   }
-
-  // String _getData(int paymentMethod) {
-  //   switch (paymentMethod) {
-  //     case 0:
-  //       return 'Social pay';
-  //     case 1:
-  //       return 'Haan bank';
-  //     case 2:
-  //       return 'cash';
-  //     case 3:
-  //       return 'body';
-  //     default:
-  //       return 'Select the fucking method';
-  //   }
-  // }
 }

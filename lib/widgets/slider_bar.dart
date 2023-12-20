@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 
 class PriceSlider extends StatefulWidget {
+  final ValueChanged<RangeValues>?
+      onValuesChanged; // Callback to notify parent of selected values
+
+  PriceSlider({Key? key, this.onValuesChanged}) : super(key: key);
+
   @override
   _PriceSliderState createState() => _PriceSliderState();
 }
 
 class _PriceSliderState extends State<PriceSlider> {
-  double _minValue = 0;
-  double _maxValue = 100;
-  RangeValues _values = RangeValues(0, 100);
+  double _minValue = 10000;
+  double _maxValue = 100000;
+  RangeValues _values = RangeValues(10000, 100000);
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +27,11 @@ class _PriceSliderState extends State<PriceSlider> {
             setState(() {
               _values = values;
               print(_values);
+
+              // Notify the parent widget of the selected values
+              if (widget.onValuesChanged != null) {
+                widget.onValuesChanged!(_values);
+              }
             });
           },
           labels: RangeLabels(

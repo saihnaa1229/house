@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sizer/sizer.dart';
 import 'package:test_fire/model/employee1.dart';
 import 'package:test_fire/pages/employee/employee_screen.dart';
+import 'package:test_fire/pages/filter_screen.dart';
 import 'dart:async';
 
 import '../util/constants.dart';
@@ -61,7 +62,7 @@ class _MySearchScreenState extends State<MySearchScreen> {
   Widget build(BuildContext context) {
     double containerHeight;
     if (searchResults.isEmpty) {
-      containerHeight = 10.h; // Height for no search results
+      containerHeight = 11.h; // Height for no search results
     } else if (searchResults.length == 1) {
       containerHeight = 20.h; // Height for exactly one search result
     } else {
@@ -83,15 +84,19 @@ class _MySearchScreenState extends State<MySearchScreen> {
                 fillColor: kTextFieldColor,
                 suffixIcon: IconButton(
                   icon: Icon(Icons.search),
-                  onPressed: () {
-                    onSearchChanged(searchController.text.trim());
+                  onPressed: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FilterScreen(),
+                      ),
+                    );
                   },
-                ), // Your text field fill color
+                ),
 
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(
-                      3.w), // Adjust the border radius as needed
-                  borderSide: BorderSide.none, // No border side
+                  borderRadius: BorderRadius.circular(3.w),
+                  borderSide: BorderSide.none,
                 ),
               ),
               onChanged: onSearchChanged,
@@ -132,7 +137,7 @@ class _MySearchScreenState extends State<MySearchScreen> {
                             Container(
                               margin: EdgeInsets.only(right: 3.w),
                               child: Image.network(
-                                product.url, // Use ProductDetail property
+                                product.url,
                                 height: 8.h,
                                 width: 10.h,
                               ),
@@ -143,13 +148,12 @@ class _MySearchScreenState extends State<MySearchScreen> {
                               children: [
                                 Container(
                                   child: Text(
-                                    product
-                                        .fullName, // Use ProductDetail property
+                                    product.fullName,
                                     style: kBold12,
                                   ),
                                 ),
                                 Text(
-                                  ("${product.categorytext}"), // Use ProductDetail property
+                                  ("${product.categorytext}"),
                                   style: kRegular12,
                                 ),
                               ],

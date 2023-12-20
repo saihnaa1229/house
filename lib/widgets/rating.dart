@@ -4,7 +4,10 @@ import 'package:sizer/sizer.dart';
 import '../util/constants.dart';
 
 class RatingWidget extends StatefulWidget {
-  const RatingWidget({super.key});
+  final ValueChanged<int>?
+      onRatingSelected; // Callback to notify parent of selected rating
+
+  const RatingWidget({super.key, this.onRatingSelected});
 
   @override
   State<RatingWidget> createState() => _RatingWidgetState();
@@ -13,7 +16,8 @@ class RatingWidget extends StatefulWidget {
 class _RatingWidgetState extends State<RatingWidget> {
   int _selectedChipIndex = 0;
 
-  List<String> _categories = ['All', '5', '4', '3', '2', '1'];
+  List<String> _categories = ['1', '2', '3', '4', '5'];
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -48,6 +52,11 @@ class _RatingWidgetState extends State<RatingWidget> {
                 setState(() {
                   _selectedChipIndex = selected ? index : 0;
                 });
+
+                // Notify the parent widget of the selected rating
+                if (widget.onRatingSelected != null) {
+                  widget.onRatingSelected!(_selectedChipIndex);
+                }
               },
               labelStyle: TextStyle(
                 color:

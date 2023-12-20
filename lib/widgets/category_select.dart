@@ -7,9 +7,12 @@ import '../util/user.dart';
 import 'employee_card.dart';
 
 class CategorySelect extends StatefulWidget {
-  final Function(String) onCategorySelected;
+  final Function(String) onCategorySelected; // Callback function
 
-  const CategorySelect({super.key, required this.onCategorySelected});
+  const CategorySelect({
+    required this.onCategorySelected, // Pass the callback function as a parameter
+    super.key,
+  });
 
   @override
   State<CategorySelect> createState() => _CategorySelectState();
@@ -53,6 +56,8 @@ class _CategorySelectState extends State<CategorySelect> {
                 setState(() {
                   _selectedChipIndex = selected ? index : 0;
                 });
+
+                widget.onCategorySelected(_categories[_selectedChipIndex]);
               },
               labelStyle: TextStyle(
                 color:
@@ -70,7 +75,6 @@ class _CategorySelectState extends State<CategorySelect> {
   }
 
   String getValue(int index) {
-    // Map the input field to the UserModel field
     switch (index) {
       case 0:
         value = 'Цэвэрлэгээ';

@@ -5,9 +5,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:test_fire/model/book_order.dart';
 import 'package:test_fire/model/booking.dart';
 import 'package:test_fire/model/employee.dart';
 import 'package:test_fire/model/employee1.dart';
+import 'package:test_fire/util/user.dart';
 import 'package:test_fire/widgets/employee_card.dart';
 import '../model/admin.dart';
 import '../model/services.dart';
@@ -98,7 +100,7 @@ class HomeServices {
   }
 
   static List<String> getBookingStatus() {
-    List<String> temp = ['Хүлээгдэж байгаа', 'Баталгаажсан', 'Захиалсан'];
+    List<String> temp = ['Хүлээгдэж байгаа', 'Баталгаажсан', 'Цуцалсан'];
 
     return temp;
   }
@@ -140,16 +142,16 @@ class HomeServices {
     return temp;
   }
 
-  List<BookingItemCard> getBookingDetails(int index) {
-    List<BookingItemCard> temp = [];
+  // List<BookingItemCard> getBookingDetails(int index) {
+  //   List<BookingItemCard> temp = [];
 
-    for (int i = 0; i < bookingList.length; i++) {
-      if (bookingList[i].bookingitems.status == index) {
-        temp.add(bookingList[i]);
-      }
-    }
-    return temp;
-  }
+  //   for (int i = 0; i < bookingList.length; i++) {
+  //     if (bookingList[i].bookingitems.status == index) {
+  //       temp.add(bookingList[i]);
+  //     }
+  //   }
+  //   return temp;
+  // }
 
   Future<List<EmployeeCard>> getAllEmployees() async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -281,6 +283,58 @@ class HomeServices {
     } else {
       throw Exception('User not found');
     }
+  }
+
+  Future<List<BookingItemCard>> getBookingsByStatus(String status) async {
+    QuerySnapshot snapshot = await firestore
+        .collection('users')
+        .doc(UserPreferences.getUser())
+        .collection('bookings')
+        .where('status', isEqualTo: status)
+        .get();
+
+    List<BookingItemCard> temp = [];
+
+    for (var doc in snapshot.docs) {
+      var element = BookingModel.fromDocumentSnapshot(doc);
+      temp.add(
+        BookingItemCard(
+          bookingitems: element,
+        ),
+      );
+    }
+
+    return temp;
+  }
+
+  Future<List<BookingItemCard>> getBookingBySelectedDay(
+      String formattedDate) async {
+    List<BookingItemCard> bookings = [];
+
+    // Convert the formattedDate string back to a DateTime
+    DateTime selectedDate = DateTime.parse(formattedDate);
+
+    // Convert the DateTime to a Firestore Timestamp
+    Timestamp selectedTimestamp = Timestamp.fromDate(selectedDate);
+
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore
+        .instance
+        .collection('users')
+        .doc(UserPreferences.getUser())
+        .collection('bookings')
+        .where('selectedDay', isEqualTo: selectedTimestamp)
+        .get();
+
+    // Convert each DocumentSnapshot into a BookingModel
+    for (var doc in querySnapshot.docs) {
+      var element = BookingModel.fromDocumentSnapshot(doc);
+      bookings.add(
+        BookingItemCard(
+          bookingitems: element,
+        ),
+      );
+    }
+    return bookings;
   }
 }
 
@@ -644,128 +698,128 @@ List<ServiceItemCard> serviceListItems = [
   ),
 ];
 
-List<BookingItemCard> bookingList = [
-  BookingItemCard(
-    bookingitems: Booking(
-        employee: Employee(
-          name: 'Анужин',
-          category: 'Цэвэрлэгээ',
-          employeeId: 0,
-          img: 'assets/images/profile.webp',
-          rating: 4.8,
-          review: 841,
-          salary: 25,
-          favorite: true,
-        ),
-        bookingId: 0,
-        status: 0),
-  ),
-  BookingItemCard(
-    bookingitems: Booking(
-        employee: Employee(
-          name: 'Сараа',
-          category: 'Цэвэрлэгээ',
-          employeeId: 0,
-          img: 'assets/images/profile.webp',
-          rating: 4.8,
-          review: 841,
-          salary: 25,
-          favorite: false,
-        ),
-        bookingId: 0,
-        status: 0),
-  ),
-  BookingItemCard(
-    bookingitems: Booking(
-        employee: Employee(
-          name: 'Заяа',
-          category: 'Цэвэрлэгээ',
-          employeeId: 0,
-          img: 'assets/images/profile.webp',
-          rating: 4.8,
-          review: 841,
-          salary: 25,
-          favorite: true,
-        ),
-        bookingId: 0,
-        status: 1),
-  ),
-  BookingItemCard(
-    bookingitems: Booking(
-        employee: Employee(
-          name: 'Бямбаа',
-          category: 'Цэвэрлэгээ',
-          employeeId: 0,
-          img: 'assets/images/profile.webp',
-          rating: 4.8,
-          review: 841,
-          salary: 25,
-          favorite: false,
-        ),
-        bookingId: 0,
-        status: 2),
-  ),
-  BookingItemCard(
-    bookingitems: Booking(
-        employee: Employee(
-          name: 'Ариука',
-          category: 'Цэвэрлэгээ',
-          employeeId: 0,
-          img: 'assets/images/profile.webp',
-          rating: 4.8,
-          review: 841,
-          salary: 25,
-          favorite: false,
-        ),
-        bookingId: 0,
-        status: 2),
-  ),
-  BookingItemCard(
-    bookingitems: Booking(
-        employee: Employee(
-          name: 'Ари',
-          category: 'Цэвэрлэгээ',
-          employeeId: 0,
-          img: 'assets/images/profile.webp',
-          rating: 4.8,
-          review: 841,
-          salary: 25,
-          favorite: true,
-        ),
-        bookingId: 0,
-        status: 1),
-  ),
-  BookingItemCard(
-    bookingitems: Booking(
-        employee: Employee(
-          name: 'Амараа',
-          category: 'Цэвэрлэгээ',
-          employeeId: 0,
-          img: 'assets/images/profile.webp',
-          rating: 4.8,
-          review: 841,
-          salary: 25,
-          favorite: true,
-        ),
-        bookingId: 0,
-        status: 0),
-  ),
-  BookingItemCard(
-    bookingitems: Booking(
-        employee: Employee(
-          name: 'Эрдэнэ',
-          category: 'Цэвэрлэгээ',
-          employeeId: 0,
-          img: 'assets/images/profile.webp',
-          rating: 4.8,
-          review: 841,
-          salary: 25,
-          favorite: false,
-        ),
-        bookingId: 0,
-        status: 0),
-  )
-];
+// List<BookingItemCard> bookingList = [
+//   BookingItemCard(
+//     bookingitems: Booking(
+//         employee: Employee(
+//           name: 'Анужин',
+//           category: 'Цэвэрлэгээ',
+//           employeeId: 0,
+//           img: 'assets/images/profile.webp',
+//           rating: 4.8,
+//           review: 841,
+//           salary: 25,
+//           favorite: true,
+//         ),
+//         bookingId: 0,
+//         status: 0),
+//   ),
+//   BookingItemCard(
+//     bookingitems: Booking(
+//         employee: Employee(
+//           name: 'Сараа',
+//           category: 'Цэвэрлэгээ',
+//           employeeId: 0,
+//           img: 'assets/images/profile.webp',
+//           rating: 4.8,
+//           review: 841,
+//           salary: 25,
+//           favorite: false,
+//         ),
+//         bookingId: 0,
+//         status: 0),
+//   ),
+//   BookingItemCard(
+//     bookingitems: Booking(
+//         employee: Employee(
+//           name: 'Заяа',
+//           category: 'Цэвэрлэгээ',
+//           employeeId: 0,
+//           img: 'assets/images/profile.webp',
+//           rating: 4.8,
+//           review: 841,
+//           salary: 25,
+//           favorite: true,
+//         ),
+//         bookingId: 0,
+//         status: 1),
+//   ),
+//   BookingItemCard(
+//     bookingitems: Booking(
+//         employee: Employee(
+//           name: 'Бямбаа',
+//           category: 'Цэвэрлэгээ',
+//           employeeId: 0,
+//           img: 'assets/images/profile.webp',
+//           rating: 4.8,
+//           review: 841,
+//           salary: 25,
+//           favorite: false,
+//         ),
+//         bookingId: 0,
+//         status: 2),
+//   ),
+//   BookingItemCard(
+//     bookingitems: Booking(
+//         employee: Employee(
+//           name: 'Ариука',
+//           category: 'Цэвэрлэгээ',
+//           employeeId: 0,
+//           img: 'assets/images/profile.webp',
+//           rating: 4.8,
+//           review: 841,
+//           salary: 25,
+//           favorite: false,
+//         ),
+//         bookingId: 0,
+//         status: 2),
+//   ),
+//   BookingItemCard(
+//     bookingitems: Booking(
+//         employee: Employee(
+//           name: 'Ари',
+//           category: 'Цэвэрлэгээ',
+//           employeeId: 0,
+//           img: 'assets/images/profile.webp',
+//           rating: 4.8,
+//           review: 841,
+//           salary: 25,
+//           favorite: true,
+//         ),
+//         bookingId: 0,
+//         status: 1),
+//   ),
+//   BookingItemCard(
+//     bookingitems: Booking(
+//         employee: Employee(
+//           name: 'Амараа',
+//           category: 'Цэвэрлэгээ',
+//           employeeId: 0,
+//           img: 'assets/images/profile.webp',
+//           rating: 4.8,
+//           review: 841,
+//           salary: 25,
+//           favorite: true,
+//         ),
+//         bookingId: 0,
+//         status: 0),
+//   ),
+//   BookingItemCard(
+//     bookingitems: Booking(
+//         employee: Employee(
+//           name: 'Эрдэнэ',
+//           category: 'Цэвэрлэгээ',
+//           employeeId: 0,
+//           img: 'assets/images/profile.webp',
+//           rating: 4.8,
+//           review: 841,
+//           salary: 25,
+//           favorite: false,
+//         ),
+//         bookingId: 0,
+//         status: 0),
+//   )
+// ];
 
 // final List<String> _categories = ['All', 'Cleaning', 'Repairing', 'Painting'];
 
